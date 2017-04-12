@@ -1,0 +1,12 @@
+#version 450
+
+in vec3 normal0;
+
+out vec4 pixelColor;
+
+void main()
+{
+    vec3 lightDirection =  vec3(0,0,1);
+
+    pixelColor = vec4(.7,.4,.2,1) * clamp(dot(-lightDirection, normal0), 0.5, 1.);
+}

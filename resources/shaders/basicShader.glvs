@@ -1,0 +1,18 @@
+#version 450
+
+in vec3 pos;
+in vec3 normal;
+
+//auto interpolation between pixels
+out vec3 normal0;
+
+//can be set by CPU and read by GPU
+uniform mat4 transform;
+
+void main()
+{
+    //cancel translation with ,0
+    normal0 = (transform * vec4(normal,0)).xyz;
+    gl_Position = transform * vec4(pos,1.0);
+}
+
