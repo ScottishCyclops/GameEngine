@@ -16,40 +16,49 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef SCENE_H
+#define SCENE_H
 
 #include "libs.h"
-#include "engine/utils/transform.h"
-#include "engine/camera.h"
+#include "engine/mesh/mesh.h"
+#include "engine/mesh/meshloader.h"
 
-#define vertexShaderExt ".glvs"
-#define fragmentShaderExt ".glfs"
+const string meshFolder = resFolder+"/meshes/";
 
-class Shader
+enum
 {
-private:
-    enum
-    {
-        TRANSFORM_U,
-        LIGHT_DIR_U,
+    SMALL_ROCK_01_M,
+    BIG_FACE_M,
 
-        NUM_UNIFORMS,
-    };
-    static const uint NUM_SHADERS = 2;
-    GLuint m_glProgram;
-    GLuint m_shaders[NUM_SHADERS];
-    GLuint m_uniforms[NUM_UNIFORMS];
-
-public:
-    Shader(const string &shaderName);
-    void use();
-    void update(Transform* transform, Camera *camera, glm::vec3 *lightDir);
-    ~Shader();
-
-    static string loadShader(const string &fileName);
-    static void checkShaderError(GLuint check, GLuint flag, bool isProgram, const std::string &errorMessage);
-    static GLuint createShader(const string &code, GLenum type);
+    NUM_MESHES
 };
 
-#endif // SHADER_H
+struct MeshInfo
+{
+    uint id;
+    string fileName;
+    uint usage;
+    Mesh* mesh;
+};
+
+
+class Scene
+{
+
+public:
+    Scene();
+    void updateMeshCache();
+    Object* addObject(uint id, Shader* shader);
+    Object* addObject(uint id, Shader* shader, Transform* transform);
+    void removeObject(Object *object);
+    vector<Object*>* getObjects(){return &m_objects;}
+
+private:
+    vector<MeshInfo> m_meshes;
+    vector<Object*> m_objects;
+
+    void loadMesh(uint id);
+    void unloadMesh(uint id);
+};
+
+#endif // SCENE_H

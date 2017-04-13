@@ -24,12 +24,12 @@
 #include "engine/utils/transform.h"
 #include "engine/mesh/shader.h"
 
-class MeshData
+class Mesh
 {
 private:
     vector<glm::vec3> m_positions;
     vector<glm::vec3> m_normals;
-    vector<uint> m_indicies;
+    vector<uint> m_ibo;
     enum
     {
         POSITION_VB,
@@ -40,24 +40,44 @@ private:
     GLuint m_vao;
     GLuint m_vbo[NUM_BUFFERS];
 public:
-    MeshData(vector<glm::vec3> positions, vector<glm::vec3> normals, vector<uint> indicies);
-    MeshData(const string &file);
+    Mesh(vector<glm::vec3> positions, vector<glm::vec3> normals, vector<uint> indicies);
     GLuint* getVao();
     uint getDrawCount();
-    ~MeshData();
+    void destroy();
+    ~Mesh();
 };
 
-class Mesh
+class Object
 {
 private:
-    Transform* m_transform;
-    MeshData* m_data;
+    uint m_typeId;
+    uint m_index;
+    Mesh* m_mesh;
     Shader* m_shader;
+    Transform* m_transform;
 public:
-    Mesh(MeshData* data, Transform* transform, Shader* shader);
-    Mesh(MeshData* data, Shader* shader);
-    void draw(Camera *camera);
+    Object(uint typeId, uint index, Mesh* mesh, Shader* shader);
+    Object(uint typeId, uint index, Mesh* mesh, Shader* shader, Transform* transform);
+    void draw(Camera *camera, glm::vec3 *lightDir);
     Transform* getTransform(){return m_transform;}
+
+    void translate(float x, float y, float z);
+    void rotateX(float angle);
+    void rotateY(float angle);
+    void rotateZ(float angle);
+    void scale(float x, float y, float z);
+    void scale(float w);
+
+    glm::vec3* getLoc(){return &m_transform->loc;}
+    glm::vec3* getRot(){return &m_transform->rot;}
+    glm::vec3* getScale(){return &m_transform->scale;}
+    uint getType(){return m_typeId;}
+    uint getIndex(){return m_index;}
+
+    void setLoc(glm::vec3 loc){m_transform->loc = loc;}
+    void setRot(glm::vec3 rot){m_transform->rot = rot;}
+    void setScale(glm::vec3 scale){m_transform->scale = scale;}
+
 };
 
 #endif // MESH_H

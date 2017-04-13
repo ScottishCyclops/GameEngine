@@ -18,7 +18,7 @@
 
 #include "meshloader.h"
 
-MeshData *MeshLoader::LoadMesh(const string &file)
+Mesh* MeshLoader::LoadMesh(const string &file)
 {
     ifstream objFile(file.c_str());
 
@@ -29,6 +29,9 @@ MeshData *MeshLoader::LoadMesh(const string &file)
     vector<uint> vIndicies;
     vector<uint> vtIndicies;
     vector<uint> vnIndicies;
+
+    bool hasNormals = false;
+    bool hasUVs = false;
 
     for(string line; getline(objFile, line);)
     {
@@ -43,11 +46,13 @@ MeshData *MeshLoader::LoadMesh(const string &file)
         //we found a texture coord
         else if(cLine[0] == 'v' && cLine[1] == 't')
         {
+            hasUVs = true;
             vt.push_back(parseLineAsVec2(line,3));
         }
         //we found a normal
         else if(cLine[0] == 'v' && cLine[1] == 'n')
         {
+            hasNormals = true;
             vn.push_back(parseLineAsVec3(line,3));
         }
         //we found a face
@@ -55,21 +60,32 @@ MeshData *MeshLoader::LoadMesh(const string &file)
         {
             vector<string> values = Utils::splitStr(line,' ');
             //we skip the "f " we start at 1
-            for(uint j = 1; j < 4; j++)
+            for(uint j = 1; j < values.size(); j++)
             {
                 vector<string> separatedValues = Utils::splitStr(values[j],'/');
+
                 vIndicies.push_back(  (uint) Utils::strToInt(separatedValues[0]) -1 );
-                vtIndicies.push_back( (uint) Utils::strToInt(separatedValues[1]) -1 );
-                vnIndicies.push_back( (uint) Utils::strToInt(separatedValues[2]) -1 );
+                if(hasUVs)
+                {
+                    vtIndicies.push_back( (uint) Utils::strToInt(separatedValues[1]) -1 );
+                    if(hasNormals)
+                    {
+                        vnIndicies.push_back( (uint) Utils::strToInt(separatedValues[2]) -1 );
+                    }
+                }
+                else if(hasNormals)
+                {
+                    //if we don't have uvs but normals, they will be at index 1
+                    vnIndicies.push_back( (uint) Utils::strToInt(separatedValues[1]) -1 );
+                }
             }
-                //we have a total of 3+3+3 componants per face
-                //it looks like this : v, vt, vn, v, vt, vn, v, vt, vn
         }
     }
 
-    vector<glm::vec3> realVn = computePerVertexNormals(vn,vIndicies,vnIndicies);
+    //we compute the vertex normals for now
+    vector<glm::vec3> normals = computeNormals(vIndicies,v);
 
-    return new MeshData(v,realVn,vIndicies);
+    return new Mesh(v,normals,vIndicies);
 }
 
 glm::vec2 MeshLoader::parseLineAsVec2(const string &line, uint start)
@@ -121,17 +137,28 @@ float MeshLoader::parseFloat(const string &chars, uint start, uint end)
     return (float)atof(chars.substr(start,end-start).c_str());
 }
 
-vector<glm::vec3> MeshLoader::computePerVertexNormals(vector<glm::vec3>vn, vector<uint>vIndicies, vector<uint>vnIndicies)
+vector<glm::vec3> MeshLoader::computeNormals(vector<uint> vIndices, vector<glm::vec3> v)
 {
-    //we need as many normals as vertex, even if some are duplicates
-    //we need them in the same order as in vIndicies
-    vector<glm::vec3> perVertexNormal;
-    perVertexNormal.reserve(vnIndicies.size());
+    vector<glm::vec3> normals(v.size());
 
-    for(uint i = 0; i < vIndicies.size(); i++)
+    for(uint i = 0; i < vIndices.size(); i+=3)
     {
-        perVertexNormal[vIndicies[i]] = vn[vnIndicies[i]];
+        int i0 = vIndices[i  ];
+        int i1 = vIndices[i+1];
+        int i2 = vIndices[i+2];
+
+        glm::vec3 v1 = v[i1] - v[i0];
+        glm::vec3 v2 = v[i2] - v[i0];
+
+        glm::vec3 normal = glm::normalize(glm::cross(v1, v2));
+
+        normals[i0] += normal;
+        normals[i1] += normal;
+        normals[i2] += normal;
     }
 
-    return perVertexNormal;
+    for(uint i = 0; i < v.size(); i++)
+        normals[i] = glm::normalize(normals[i]);
+
+    return normals;
 }

@@ -21,8 +21,14 @@
 Shader::Shader(const string &shaderName)
 {
     m_glProgram = glCreateProgram();
-    m_shaders[0] = createShader(loadShader(shaderName + V_SHADER_EXT), GL_VERTEX_SHADER);
-    m_shaders[1] = createShader(loadShader(shaderName + F_SHADER_EXT), GL_FRAGMENT_SHADER);
+    if(m_glProgram == 0)
+    {
+        cout << "E: Program creation failure" << endl;
+        return;
+    }
+
+    m_shaders[0] = createShader(loadShader(shaderName + vertexShaderExt), GL_VERTEX_SHADER);
+    m_shaders[1] = createShader(loadShader(shaderName + fragmentShaderExt), GL_FRAGMENT_SHADER);
 
     for(uint i = 0; i < NUM_SHADERS; i++)
     {
@@ -30,8 +36,8 @@ Shader::Shader(const string &shaderName)
     }
 
     //bind shader variable name
-    glBindAttribLocation(m_glProgram, 0, "pos");
-    glBindAttribLocation(m_glProgram, 1, "normal");
+    //glBindAttribLocation(m_glProgram, 0, "pos");
+    //glBindAttribLocation(m_glProgram, 1, "normal");
 
     glLinkProgram(m_glProgram);
     checkShaderError(m_glProgram,GL_LINK_STATUS,true, "Program linking failure");
@@ -42,6 +48,7 @@ Shader::Shader(const string &shaderName)
     //transform is the name used in GLSL. This gets us the location of that variable so
     //we can use it from the CPU
     m_uniforms[TRANSFORM_U] = glGetUniformLocation(m_glProgram,"transform");
+    m_uniforms[LIGHT_DIR_U] = glGetUniformLocation(m_glProgram,"lightDir");
 }
 
 void Shader::use()
@@ -49,12 +56,13 @@ void Shader::use()
     glUseProgram(m_glProgram);
 }
 
-void Shader::update(Transform *transform, Camera* camera)
+void Shader::update(Transform *transform, Camera* camera, glm::vec3* lightDir)
 {
     //model view projection
     glm::mat4 mvp = camera->getViewProjection() * transform->getModel();
     //4D matrix with float values
     glUniformMatrix4fv(m_uniforms[TRANSFORM_U],1,GL_FALSE,&mvp[0][0]);
+    glUniform3fv(m_uniforms[LIGHT_DIR_U],1,(float*)lightDir);
 }
 
 Shader::~Shader()

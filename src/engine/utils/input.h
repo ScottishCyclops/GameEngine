@@ -21,6 +21,8 @@
 
 #include "libs.h"
 
+#include "engine/camera.h"
+
 class Mouse
 {
 public:
@@ -35,13 +37,27 @@ public:
     {
         SDL_WarpMouseInWindow(NULL,x,y);
     }
-    static glm::vec2 toScreenSpace(glm::vec2 coord, int width, int height)
+    static glm::vec3 toWorldSpace(glm::vec2 coord, Camera* cam)
     {
-        glm::vec2 space(0,0);
-        space.x = -((coord.x/width*2)-1);
-        space.y = -((coord.y/height*2)-1);
+        float x = (2.f * coord.x) / cam->getWidth() - 1.f;
+        float y = 1.f - (2.f * coord.y) / cam->getHeight();
+        glm::vec2 ray_nds(x, y);
+        /*
 
-        return space;
+        glm::vec4 ray_clip(ray_nds.x, ray_nds.y, *cam->getZ(), 1.f);
+
+        glm::vec4 ray_eye = glm::inverse(cam->getProjection()) * ray_clip;
+        ray_eye = glm::vec4(ray_eye.x,ray_eye.y, -1.f, 0.f);
+
+        glm::vec4 temp(glm::inverse(cam->getView()) * ray_eye);
+        glm::vec3 ray_wor(temp.x,temp.y,temp.z);
+        // don't forget to normalise the vector at some point
+        ray_wor = glm::normalize(ray_wor);
+        */
+
+        glm::vec4 inversed = glm::vec4(ray_nds.x,ray_nds.y,0,0.f) * glm::inverse(cam->getViewProjection());
+
+        return glm::vec3(inversed.x,inversed.y,0);
     }
 };
 

@@ -21,6 +21,8 @@
 
 #include "libs.h"
 
+#include "engine/utils/utils.h"
+
 class Camera
 {
 private:
@@ -29,13 +31,26 @@ private:
     glm::vec3 m_forward;
     glm::vec3 m_up;
 
-public:
-    Camera(glm::vec3 pos, float fov, float aspect, float minClip, float maxClip);
-    glm::mat4 getViewProjection();
+    float m_fov;
+    int m_width;
+    int m_height;
 
-    float* getX();
-    float* getY();
-    float* getZ();
+public:
+    Camera(glm::vec3 pos, float fov, int width, int height, float minClip, float maxClip);
+    glm::mat4 getView();
+    glm::mat4 getProjection();
+    glm::mat4 getViewProjection();
+    glm::vec3 getLeft();
+    glm::vec3 getRight();
+
+    float* getX(){return &m_pos.x;}
+    float* getY(){return &m_pos.y;}
+    float* getZ(){return &m_pos.z;}
+
+    int getWidth(){return m_width;}
+    int getHeight(){return m_height;}
+    int getFov(){return m_fov;}
+
 };
 
 #endif // CAMERA_H

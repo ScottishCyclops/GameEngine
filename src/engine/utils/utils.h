@@ -21,11 +21,14 @@
 
 #include "libs.h"
 
+#define pi 3.141592654
+
 class Utils
 {
 public:
     static vector<string> splitStr(const string &str, const char &delim);
     static int strToInt(string str);
+    static float degreesToRad(float angle);
 };
 
 #endif // UTILS_H

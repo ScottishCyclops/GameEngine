@@ -18,30 +18,39 @@
 
 #include "camera.h"
 
-Camera::Camera(glm::vec3 pos, float fov, float aspect, float minClip, float maxClip)
+Camera::Camera(glm::vec3 pos, float fov, int width, int height, float minClip, float maxClip)
 {
-    m_perspective = glm::perspective(fov,aspect,minClip,maxClip);
     m_pos = pos;
+    m_fov = fov;
+    m_width = width;
+    m_height = height;
+
+    m_perspective = glm::perspective(Utils::degreesToRad(fov),(float)width/height,minClip,maxClip);
     m_forward = glm::vec3(0,0,1);
     m_up = glm::vec3(0,1,0);
 }
 
+glm::mat4 Camera::getView()
+{
+    return glm::lookAt(m_pos,m_pos+m_forward,m_up);
+}
+
+glm::mat4 Camera::getProjection()
+{
+    return m_perspective;
+}
+
 glm::mat4 Camera::getViewProjection()
 {
-    return m_perspective * glm::lookAt(m_pos,m_pos+m_forward,m_up);
+    return getProjection()*getView();
 }
 
-float* Camera::getX()
+glm::vec3 Camera::getLeft()
 {
-    return &m_pos.x;
+    return glm::normalize(glm::cross(m_up,m_forward));
 }
 
-float* Camera::getY()
+glm::vec3 Camera::getRight()
 {
-    return &m_pos.y;
-}
-
-float* Camera::getZ()
-{
-    return &m_pos.z;
+    return glm::normalize(glm::cross(m_forward,m_up));
 }

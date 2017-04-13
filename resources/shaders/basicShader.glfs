@@ -1,12 +1,29 @@
-#version 450
+#version 330
 
 in vec3 normal0;
+in vec3 lightDir0;
 
 out vec4 pixelColor;
 
+vec3 lightDir = lightDir0;
+vec4 lightColor = vec4(1.,1.,1.,1.);
+float ambiantLight = .2;
+
+vec4 solidColor = vec4(0.15,0.68,0.37,1.);
+vec4 backgroundColor = vec4(.1,.1,.1,1.);
+
+
+float map(float value, float inMin, float inMax, float outMin, float outMax) {
+  return (((value-inMin)/inMax)*outMax)+outMin;
+}
+
 void main()
 {
-    vec3 lightDirection =  vec3(0,0,1);
 
-    pixelColor = vec4(.7,.4,.2,1) * clamp(dot(-lightDirection, normal0), 0.5, 1.);
+    float fresnel = clamp( map( dot(vec3(0,0,-1), normal0), 0.,1.,.5,-1.), 0., 1.);
+
+    pixelColor = solidColor
+    * clamp(dot(-lightDir, normal0), ambiantLight, 1.)
+    * lightColor
+    + (mix(lightColor,backgroundColor,.8)*fresnel);
 }

@@ -33,6 +33,7 @@ Display::Display(int width, int height, const string &title)
     SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,32);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
+    SDL_GL_SetSwapInterval(0);
 
     m_window = SDL_CreateWindow(title.c_str(),0,0,width,height,SDL_WINDOW_OPENGL);
     if(m_window == NULL)
@@ -54,15 +55,15 @@ Display::Display(int width, int height, const string &title)
     glClearColor(.1f,.1f,.1f,1);
     glEnable(GL_DEPTH_TEST);
 
-    glFrontFace(GL_CW);
-    glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
     //gamma correction
     //glEnable(GL_FRAMEBUFFER_SRGB);
 
     cout << "I: OpenGL " << glGetString(GL_VERSION) << endl;
-
+    cout << "I: SDL " << +SDL_MAJOR_VERSION << "." << +SDL_MINOR_VERSION << "."  << +SDL_PATCHLEVEL << endl;
     m_isOpen = true;
 }
 

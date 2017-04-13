@@ -18,47 +18,27 @@
 
 #include "game.h"
 
-Game::Game()
+Game::Game(Display* display)
 {
+    Game::display = display;
+
     isRunning = false;
     m_kb = new Keyboard();
     m_mouse = new Mouse();
-    m_camera = new Camera(glm::vec3(0,0,-5),70,800.f/600.f,0.01f,1000);
+    m_camera = new Camera(glm::vec3(0,.5,-5),55.f,display->getWidth(),display->getHeight(),0.01f,300);
+    m_scene = new Scene();
+    m_i = 0;
 }
 
-void Game::loadMeshes()
+
+void Game::initScene()
 {
-    //Shader shader("../resources/shaders/basicShader");
-    Shader* shader = new Shader("../resources/shaders/basicShader");
+    m_shader = new Shader(resFolder+"/shaders/basicShader");
 
-    vector<glm::vec3> pos =
-    {
-        glm::vec3(1,-1,0),
-        glm::vec3(0,1,0),
-        glm::vec3(-1,-1,0)
-    };
-    vector<glm::vec3> norm =
-    {
-        glm::vec3(0,0,-1),
-        glm::vec3(0,0,-1),
-        glm::vec3(0,0,-1)
-    };
-    vector<uint> i = {0,1,2};
-
-    MeshData* md = new MeshData(pos,norm,i);
-    m_meshData.append(md);
-    m_meshData.append(MeshLoader::LoadMesh("../resources/meshes/cube.obj"));
-
-
-    Mesh mesh(m_meshData[0],shader);
-    Mesh mesh2(m_meshData[1],shader);
-    mesh.getTransform()->scale = glm::vec3(.3,.3,.3);
-    mesh2.getTransform()->loc.x+=1;
-
-    m_meshes.push_back(mesh);
-    m_meshes.push_back(mesh2);
+    m_scene->addObject(SMALL_ROCK_01_M,m_shader,new Transform);
 
 }
+
 
 void Game::update()
 {
@@ -79,11 +59,37 @@ void Game::update()
         isRunning = false;
     }
 
+    if(m_kb->isMouseDown(SDL_BUTTON_LEFT))
+    {
+        Transform* trans = new Transform(m_mouse->toWorldSpace(m_mouse->getPos(),m_camera));
+        m_scene->addObject(SMALL_ROCK_01_M,m_shader,trans);
+    }
+
 }
 
 void Game::render()
 {
-    m_meshes[0].getTransform()->rot.y+=.05;
-    m_meshes[0].draw(m_camera);
-    m_meshes[1].draw(m_camera);
+    glm::vec3* light = new glm::vec3(.5,-.8,.1);
+
+     m_scene->getObjects()->at(0)->rotateY(.01f);
+    for(uint i  = 0; i < m_scene->getObjects()->size(); i++)
+    {
+        m_scene->getObjects()->at(i)->draw(m_camera,light);
+    }
+    /*
+
+    m_i+=.02f;
+    //light->x = sin(m_i);
+    //light->y = cos(m_i);
+
+    m_meshes[1].translate(0,0,sin(m_i)/6.f);
+
+    m_meshes[0].draw(m_camera,light);
+    m_meshes[1].draw(m_camera,light);
+    */
+}
+
+void Game::quit()
+{
+    display->close();
 }

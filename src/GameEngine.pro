@@ -1,10 +1,10 @@
-QT += core
-QT -= gui
+#QT += core
+#QT -= gui
 
 TEMPLATE = app
 CONFIG += console c++11
 CONFIG -= app_bundle
-#CONFIG -= qt
+CONFIG -= qt
 LIBS += -lGL -lGLEW -lSDL2
 
 SOURCES += main.cpp \
@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     engine/mesh/shader.cpp \
     engine/camera.cpp\
     engine/mesh/meshloader.cpp\
-    engine/utils/utils.cpp
+    engine/utils/utils.cpp \
+    engine/scene.cpp
 
 HEADERS += \
     engine/display.h \
@@ -29,4 +30,5 @@ HEADERS += \
     engine/mesh/shader.h \
     engine/camera.h \
     engine/mesh/meshloader.h \
-    engine/utils/utils.h
+    engine/utils/utils.h \
+    engine/scene.h

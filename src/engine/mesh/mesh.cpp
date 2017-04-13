@@ -18,13 +18,13 @@
 
 #include "mesh.h"
 
-//MeshData
+//Mesh
 
-MeshData::MeshData(vector<glm::vec3> positions, vector<glm::vec3> normals, vector<uint> indicies)
+Mesh::Mesh(vector<glm::vec3> positions, vector<glm::vec3> normals, vector<uint> indicies)
 {
     m_positions = positions;
     m_normals = normals;
-    m_indicies = indicies;
+    m_ibo = indicies;
 
     glGenVertexArrays(1, &m_vao);
     //setting which array we are going to affect with the following code
@@ -47,52 +47,99 @@ MeshData::MeshData(vector<glm::vec3> positions, vector<glm::vec3> normals, vecto
 
     //Indicies buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo[INDEX_VB]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indicies.size() * sizeof(m_indicies[0]),&m_indicies[0],GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_ibo.size() * sizeof(m_ibo[0]),&m_ibo[0],GL_STATIC_DRAW);
 
     //stop affecting our vertex array
     glBindVertexArray(0);
 }
 
-GLuint* MeshData::getVao()
+GLuint* Mesh::getVao()
 {
     return &m_vao;
 }
 
-uint MeshData::getDrawCount()
+uint Mesh::getDrawCount()
 {
-    return (uint)m_indicies.size();
+    return (uint)m_ibo.size();
 }
 
-MeshData::~MeshData()
+void Mesh::destroy()
 {
     glDeleteVertexArrays(1, &m_vao);
 }
 
-//Mesh
-
-Mesh::Mesh(MeshData* data, Transform *transform, Shader* shader)
+Mesh::~Mesh()
 {
-    m_data = data;
-    m_transform = transform;
-    m_shader = shader;
+    destroy();
 }
 
-Mesh::Mesh(MeshData* data, Shader* shader)
+//Object
+
+Object::Object(uint typeId, uint index, Mesh *mesh, Shader* shader)
 {
-    m_data = data;
+    m_typeId = typeId;
+    m_index = index;
+    m_mesh = mesh;
+    m_shader = shader;
     m_transform = new Transform;
+}
+
+Object::Object(uint typeId, uint index, Mesh *mesh, Shader* shader, Transform* transform)
+{
+    m_typeId = typeId;
+    m_index = index;
+    m_mesh = mesh;
     m_shader = shader;
+    m_transform = transform;
 }
 
 
-void Mesh::draw(Camera* camera)
+void Object::draw(Camera* camera, glm::vec3* lightDir)
 {
     m_shader->use();
-    m_shader->update(m_transform,camera);
+    m_shader->update(m_transform,camera,lightDir);
 
-    glBindVertexArray(*m_data->getVao());
+    glBindVertexArray(*m_mesh->getVao());
 
-    glDrawElements(GL_TRIANGLES,m_data->getDrawCount(),GL_UNSIGNED_INT,0);
+    glDrawElements(GL_TRIANGLES,m_mesh->getDrawCount(),GL_UNSIGNED_INT,0);
 
     glBindVertexArray(0);
+}
+
+//transformation methods
+
+void Object::translate(float x, float y, float z)
+{
+    m_transform->loc.x+=x;
+    m_transform->loc.y+=y;
+    m_transform->loc.z+=z;
+}
+
+void Object::rotateX(float angle)
+{
+    m_transform->rot.x+=angle;
+}
+
+void Object::rotateY(float angle)
+{
+    m_transform->rot.y+=angle;
+}
+
+void Object::rotateZ(float angle)
+{
+    m_transform->rot.z+=angle;
+}
+
+void Object::scale(float x, float y, float z)
+{
+    m_transform->scale.x+=x;
+    m_transform->scale.y+=y;
+    m_transform->scale.z+=z;
+}
+
+void Object::scale(float w)
+{
+    m_transform->scale.x+=w;
+    m_transform->scale.y+=w;
+    m_transform->scale.z+=w;
 }

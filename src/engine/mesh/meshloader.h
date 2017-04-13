@@ -27,12 +27,12 @@
 class MeshLoader
 {
 public:
-    static MeshData* LoadMesh(const string &file);
+    static Mesh* LoadMesh(const string &file);
 private:
     static glm::vec2 parseLineAsVec2(const string &line, uint start);
     static glm::vec3 parseLineAsVec3(const string &line, uint start);
     static float parseFloat(const string &chars, uint start, uint end);
-    static vector<glm::vec3> computePerVertexNormals(vector<glm::vec3>vn, vector<uint>vIndicies, vector<uint>vnIndicies);
+    static vector<glm::vec3> computeNormals(vector<uint> vIndices, vector<glm::vec3> v);
 };
 
 #endif // MESHLOADER_H

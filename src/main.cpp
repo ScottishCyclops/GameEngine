@@ -24,15 +24,14 @@
 class MainComponent
 {
 private:
-    Display* m_display;
-    Game m_game;
+    Game* m_game;
     SDL_Event m_e;
     const float m_frameCap = 60.0f;
 
     void run()
     {
-        m_game.loadMeshes();
-        m_game.isRunning = true;
+        m_game->initScene();
+        m_game->isRunning = true;
 
         float frameTime = 1.0f/m_frameCap;
         uint frames = 0;
@@ -46,7 +45,7 @@ private:
         bool needToRender = false;
 
 
-        while(m_game.isRunning)
+        while(m_game->isRunning)
         {
             needToRender = false;
 
@@ -63,11 +62,12 @@ private:
                 needToRender = true;
                 unprocessedTime-=frameTime;
 
-                m_game.update();
+                m_game->update();
 
+                //FPS counter
                 if(frameCounter >= Time::second)
                 {
-                    cout << frames << endl;
+                    m_game->display->setTitle("FPS: "+to_string(frames));
                     frames = 0;
                     frameCounter = 0;
                 }
@@ -87,45 +87,43 @@ private:
     }
     void render()
     {
-        m_display->clear();
+        m_game->display->clear();
 
-        m_game.render();
+        m_game->render();
 
-        m_display->swap();
+        m_game->display->swap();
     }
     void clean()
     {
-        m_display->close();
+        m_game->quit();
     }
 
 public:
     MainComponent(Display* display)
     {
-        m_display = display;
-
-        m_game.isRunning = false;
+        m_game = new Game(display);
     }
 
     void start()
     {
-        if(!m_game.isRunning)
+        if(!m_game->isRunning)
         {
             run();
         }
     }
     void stop()
     {
-        if(m_game.isRunning)
+        if(m_game->isRunning)
         {
-            m_game.isRunning = false;
+            m_game->isRunning = false;
         }
     }
 };
 
 int main()
 {
-    const int width = 800;
-    const int height = 600;
+    const int width = 1280;
+    const int height = 720;
     const string title = "Miden Engine";
 
     Display d(width,height,title);

@@ -1,18 +1,25 @@
-#version 450
+#version 330
 
-in vec3 pos;
-in vec3 normal;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+
+//in vec3 pos;
+//in vec3 normal;
 
 //auto interpolation between pixels
 out vec3 normal0;
+out vec3 lightDir0;
 
 //can be set by CPU and read by GPU
 uniform mat4 transform;
+uniform vec3 lightDir;
 
 void main()
 {
+    lightDir0 = lightDir;
     //cancel translation with ,0
-    normal0 = (transform * vec4(normal,0)).xyz;
-    gl_Position = transform * vec4(pos,1.0);
+    //it may have been scaled, so we need to normalize it
+    normal0 = normalize((transform * vec4(normal,0)).xyz);
+    gl_Position = transform * vec4(position,1.);
 }
 

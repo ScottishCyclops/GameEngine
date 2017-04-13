@@ -19,6 +19,7 @@
 #ifndef LIBS_H
 #define LIBS_H
 
+
 // namespace
 using namespace std;
 
@@ -37,5 +38,8 @@ using namespace std;
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <array>
+
+const string resFolder = "../resources";
 
 #endif // LIBS_H

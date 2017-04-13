@@ -27,26 +27,29 @@
 #include "engine/camera.h"
 #include "engine/mesh/shader.h"
 #include "engine/mesh/meshloader.h"
-
-#include <QList>
+#include "engine/display.h"
+#include "engine/scene.h"
 
 class Game
 {
 private:
+    Shader* m_shader;
     SDL_Event m_e;
     Mouse* m_mouse;
     Keyboard* m_kb;
     Camera* m_camera;
-    QList<MeshData*> m_meshData;
-    vector<Mesh> m_meshes;
+    Scene* m_scene;
+    float m_i;
 
 public:
+    Display* display;
     bool isRunning;
 
-    Game();
-    void loadMeshes();
+    Game(Display *display);
+    void initScene();
     void update();
     void render();
+    void quit();
 };
 
 #endif // GAME_H
