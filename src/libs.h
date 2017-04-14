@@ -31,6 +31,7 @@ using namespace std;
 //gl math
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 // utilities
 #include <iostream>

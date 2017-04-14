@@ -19,9 +19,19 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "libs.h"
+const float pi = 3.14159265359f;
 
-#define pi 3.141592654
+enum Direction
+{
+    X_AXIS,
+    Y_AXIS,
+    Z_AXIS,
+    LOCAL_X_AXIS,
+    LOCAL_Y_AXIS,
+    LOCAL_Z_AXIS
+};
+
+#include "libs.h"
 
 class Utils
 {
@@ -31,6 +41,16 @@ public:
     static float strToFloat(string str);
     static ushort strToUshort(string str);
     static float degreesToRad(float angle);
+    static float radToDegrees(float angle);
+
+    static glm::vec3 rotateAroundAxis(glm::vec3 vec, float angle, glm::vec3 axis);
+    static glm::vec3 scaleAdd(float factor, glm::vec3 u, glm::vec3 v);
+    static glm::vec2 getAcceleration(glm::vec2 posT1, glm::vec2 posT2, float deltaT);
+
+    static string toString(glm::vec2 vec){return to_string(vec.x)+" "+to_string(vec.y);}
+    static string toString(glm::vec3 vec){return to_string(vec.x)+" "+to_string(vec.y)+" "+to_string(vec.z);}
+
+    static float getAngleBetweenVectors(glm::vec3 vec1, glm::vec3 vec2);
 };
 
 #endif // UTILS_H

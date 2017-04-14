@@ -23,6 +23,10 @@
 
 #include "engine/utils/utils.h"
 
+const glm::vec3 upVector(0.f,1.f,0.f);
+const glm::vec3 leftVector(-1.f,0.f,0.f);
+const glm::vec3 forwardVector(0.f,0.f,1.f);
+
 class Camera
 {
 private:
@@ -30,6 +34,8 @@ private:
     glm::vec3 m_pos;
     glm::vec3 m_forward;
     glm::vec3 m_up;
+    glm::vec3 m_left;
+    //glm::vec3 m_rotation;
 
     float m_fov;
     int m_width;
@@ -40,16 +46,21 @@ public:
     glm::mat4 getView();
     glm::mat4 getProjection();
     glm::mat4 getViewProjection();
-    glm::vec3 getLeft();
-    glm::vec3 getRight();
 
-    float* getX(){return &m_pos.x;}
-    float* getY(){return &m_pos.y;}
-    float* getZ(){return &m_pos.z;}
+    glm::vec3 getPos();
+    glm::vec3 getUp();
+    glm::vec3 getForward();
+    glm::vec3 getLeft();
+
+    void translate(float x, float y, float z);
+    void translate(glm::vec3 translation);
+    void translate(uint axis, float amount);
+    void rotate(uint axis, float angle);
 
     int getWidth(){return m_width;}
     int getHeight(){return m_height;}
     int getFov(){return m_fov;}
+
 
 };
 

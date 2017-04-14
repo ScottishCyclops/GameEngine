@@ -30,14 +30,6 @@ Scene::Scene() : m_meshes(NUM_MESHES)
         NULL
     };
 
-    m_meshes[TEXTURED_CUBE_M] =
-    {
-        TEXTURED_CUBE_M,
-        "cube-uv.obgl",
-        0,
-        NULL
-    };
-
     m_meshes[BIG_M] =
     {
         BIG_M,
@@ -46,10 +38,26 @@ Scene::Scene() : m_meshes(NUM_MESHES)
         NULL
     };
 
-    m_meshes[SPHERE_M] =
+    m_meshes[TEST_M] =
     {
-        SPHERE_M,
-        "sphere.obgl",
+        TEST_M,
+        "test.obgl",
+        0,
+        NULL
+    };
+
+    m_meshes[PISTOL_M] =
+    {
+        PISTOL_M,
+        "pistol.obgl",
+        0,
+        NULL
+    };
+
+    m_meshes[ANO_M] =
+    {
+        ANO_M,
+        "ano.obgl",
         0,
         NULL
     };
@@ -74,13 +82,17 @@ void Scene::unloadMesh(uint id)
     m_meshes[id].mesh = NULL;
 }
 
+void Scene::addObject(uint id, Shader* shader)
+{
+    return addObject(id,shader,new Texture("dummy"),new Transform);
+}
 
-Object* Scene::addObject(uint id, Shader* shader, Texture* texture)
+void Scene::addObject(uint id, Shader* shader, Texture* texture)
 {
     return addObject(id,shader,texture,new Transform);
 }
 
-Object* Scene::addObject(uint id, Shader* shader, Texture* texture, Transform *transform)
+void Scene::addObject(uint id, Shader* shader, Texture* texture, Transform *transform)
 {
     //if the mesh isn't loaded, we load it
     if(m_meshes[id].usage == 0)
@@ -90,9 +102,6 @@ Object* Scene::addObject(uint id, Shader* shader, Texture* texture, Transform *t
     m_meshes[id].usage++;
 
     m_objects.push_back(new Object(id, m_objects.size(), m_meshes[id].mesh,shader,texture,transform));
-
-    //we just added it so technicly it's the last one
-    return m_objects[-1];
 }
 
 void Scene::removeObject(Object* object)

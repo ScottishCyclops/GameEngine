@@ -29,9 +29,10 @@ const string meshFolder = resFolder+"/meshes/";
 enum
 {
     SMALL_ROCK_01_M,
-    TEXTURED_CUBE_M,
     BIG_M,
-    SPHERE_M,
+    TEST_M,
+    PISTOL_M,
+    ANO_M,
 
     NUM_MESHES
 };
@@ -51,8 +52,9 @@ class Scene
 public:
     Scene();
     void updateMeshCache();
-    Object* addObject(uint id, Shader* shader, Texture* texture);
-    Object* addObject(uint id, Shader* shader, Texture* texture, Transform* transform);
+    void addObject(uint id, Shader* shader);
+    void addObject(uint id, Shader* shader, Texture* texture);
+    void addObject(uint id, Shader* shader, Texture* texture, Transform* transform);
     void removeObject(Object *object);
     vector<Object*>* getObjects(){return &m_objects;}
 

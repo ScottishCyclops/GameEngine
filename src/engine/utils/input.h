@@ -25,14 +25,58 @@
 
 class Mouse
 {
+private:
+    glm::vec2 m_lastPos;
+    glm::vec2 m_currentPos;
+    float m_halfWidth;
+    float m_halfHeight;
 public:
-    static glm::vec2 getPos()
+    Mouse(int displayWidth, int displayHeight)
+    {
+        m_halfWidth = displayWidth/2.f;
+        m_halfHeight = displayHeight/2.f;
+
+        m_lastPos = glm::vec2(m_halfWidth,m_halfHeight);
+        m_currentPos = glm::vec2(m_halfWidth,m_halfHeight);
+    }
+
+    glm::vec2 getPos()
     {
         int x;
         int y;
         SDL_GetMouseState(&x,&y);
         return glm::vec2(x,y);
     }
+
+    glm::vec2 getLastPos(){return m_lastPos;}
+    glm::vec2 getCurrentPos()
+    {
+        m_lastPos = m_currentPos;
+        glm::vec2 newPos = getPos();
+
+        //protection against default location
+        if(newPos.x <= 0 || newPos.x >= m_halfWidth*2 || newPos.y <= 0 || newPos.y >= m_halfHeight*2)
+        {
+            m_currentPos.x = m_halfWidth;
+            m_currentPos.y = m_halfHeight;
+        }
+        else
+        {
+            m_currentPos = newPos;
+        }
+
+        return m_currentPos;
+
+    }
+
+    void resetPosition()
+    {
+        m_currentPos.x = m_halfWidth;
+        m_currentPos.y = m_halfHeight;
+
+        setMousePos(m_halfWidth,m_halfHeight);
+    }
+
     static void setMousePos(int x, int y)
     {
         SDL_WarpMouseInWindow(NULL,x,y);

@@ -171,7 +171,7 @@ def toString(dataTuple):
     if hasUvs:
         output += "t "
         for vert in verticies:
-            data = str(vert.loc[0]) + " " + str(vert.loc[1]) + " "
+            data = str(vert.uv[0]) + " " + str(vert.uv[1]) + " "
             output += data
         # remove last unwanted space
         output = output[0:-1]
@@ -224,11 +224,11 @@ def main():
     print("uvs:  ", len(vt))
     print("norm: ", len(vn))
 
-    print(len(vi))
-    print(len(vti))
-    print(len(vni))
+    print("faces:", len(vi))
 
+    print("starting conversion...")
     writeOutput(outFile, toString(convertObj()))
+    print("all done!")
 
 
 if __name__ == "__main__":

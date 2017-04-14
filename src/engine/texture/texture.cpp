@@ -28,43 +28,52 @@
 Texture::Texture(const string &path)
 {
     m_path = path;
-    int width, height, componants;
-    unsigned char* data = stbi_load(path.c_str(),&width,&height,&componants,4);
-
-    if(data == NULL)
+    if(m_path != "dummy")
     {
-        cout << "E: Texture loading failure: " << path << endl;
-        return;
+        int width, height, componants;
+        unsigned char* data = stbi_load(path.c_str(),&width,&height,&componants,4);
+
+        if(data == NULL)
+        {
+            cout << "E: Texture loading failure: " << path << endl;
+            return;
+        }
+
+        Texture::width = width;
+        Texture::height = height;
+
+        glGenTextures(1,&m_glTexture);
+        glBindTexture(GL_TEXTURE_2D,m_glTexture);
+
+        //set the texture to repeating
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
+        //filtering
+        glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,Texture::width,Texture::height,0,GL_RGBA,GL_UNSIGNED_BYTE,data);
+
+        stbi_image_free(data);
     }
-
-    Texture::width = width;
-    Texture::height = height;
-
-    glGenTextures(1,&m_glTexture);
-    glBindTexture(GL_TEXTURE_2D,m_glTexture);
-
-    //set the texture to repeating
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-
-    //filtering
-    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,Texture::width,Texture::height,0,GL_RGBA,GL_UNSIGNED_BYTE,data);
-
-    stbi_image_free(data);
 }
 
 void Texture::use(uint unit)
 {
-    assert(unit <= 31);
+    if(m_path != "dummy")
+    {
+        assert(unit <= 31);
 
-    glActiveTexture(GL_TEXTURE0+unit);
-    glBindTexture(GL_TEXTURE_2D,m_glTexture);
+        glActiveTexture(GL_TEXTURE0+unit);
+        glBindTexture(GL_TEXTURE_2D,m_glTexture);
+    }
 }
 
 Texture::~Texture()
 {
-    glDeleteTextures(1,&m_glTexture);
+    if(m_path != "dummy")
+    {
+        glDeleteTextures(1,&m_glTexture);
+    }
 }

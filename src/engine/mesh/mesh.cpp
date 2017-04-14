@@ -67,7 +67,7 @@ GLuint* Mesh::getVao()
 
 uint Mesh::getDrawCount()
 {
-    return (uint)m_ibo.size();
+    return (ushort)m_ibo.size();
 }
 
 void Mesh::destroy()
@@ -89,6 +89,16 @@ Object::Object(uint typeId, uint index, Mesh *mesh, Shader* shader, Texture* tex
     m_mesh = mesh;
     m_shader = shader;
     m_texture = texture;
+    m_transform = transform;
+}
+
+Object::Object(uint typeId, uint index, Mesh *mesh, Shader *shader, Transform *transform)
+{
+    m_typeId = typeId;
+    m_index = index;
+    m_mesh = mesh;
+    m_shader = shader;
+    m_texture = new Texture("dummy");
     m_transform = transform;
 }
 
@@ -115,6 +125,11 @@ void Object::translate(float x, float y, float z)
     m_transform->loc.x+=x;
     m_transform->loc.y+=y;
     m_transform->loc.z+=z;
+}
+
+void Object::translate(glm::vec3 translation)
+{
+    m_transform->loc+=translation;
 }
 
 void Object::rotateX(float angle)
@@ -145,3 +160,9 @@ void Object::scale(float w)
     m_transform->scale.y+=w;
     m_transform->scale.z+=w;
 }
+/*
+void Object::rotate(float angle, glm::vec3 axis)
+{
+    m_transform->getModel()
+}
+*/

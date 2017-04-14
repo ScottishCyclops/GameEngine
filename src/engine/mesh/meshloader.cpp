@@ -18,90 +18,6 @@
 
 #include "meshloader.h"
 
-/*
-Mesh* MeshLoader::LoadObjMesh(const string &file)
-{
-    ifstream objFile(file.c_str());
-
-    //the data we are going to get
-    vector<glm::vec3> importedV;
-    vector<glm::vec2> importedVt;
-    vector<glm::vec3> importedVn;
-    vector<ushort> importedVIndicies;
-    vector<ushort> importedVtIndicies;
-    vector<ushort> importedVnIndicies;
-
-    bool hasNormals = false;
-    bool hasUvs = false;
-
-    if(objFile.is_open())
-    {
-
-        for(string line; getline(objFile, line);)
-        {
-            //transforming to QString to have better comparaison fonctions
-            const char* cLine = line.c_str();
-
-            //if we found a vertex
-            if(cLine[0] == 'v' && cLine[1] == ' ')
-            {
-                importedV.push_back(parseLineAsVec3(line,2));
-            }
-            //we found a texture coord
-            else if(cLine[0] == 'v' && cLine[1] == 't')
-            {
-                hasUvs = true;
-                importedVt.push_back(parseLineAsVec2(line,3));
-            }
-            //we found a normal
-            else if(cLine[0] == 'v' && cLine[1] == 'n')
-            {
-                hasNormals = true;
-                importedVn.push_back(parseLineAsVec3(line,3));
-            }
-            //we found a face
-            else if(cLine[0] == 'f' && cLine[1] == ' ')
-            {
-                vector<string> values = Utils::splitStr(line,' ');
-                //we skip the "f " we start at 1
-                for(uint j = 1; j < values.size(); j++)
-                {
-                    vector<string> separatedValues = Utils::splitStr(values[j],'/');
-
-                    importedVIndicies.push_back(  (ushort) Utils::strToInt(separatedValues[0]) -1 );
-                    if(hasUvs)
-                    {
-                        importedVtIndicies.push_back( (ushort) Utils::strToInt(separatedValues[1]) -1 );
-                        if(hasNormals)
-                        {
-                            importedVnIndicies.push_back( (ushort) Utils::strToInt(separatedValues[2]) -1 );
-                        }
-                    }
-                    else if(hasNormals)
-                    {
-                        //if we don't have uvs but normals, they will be at index 1
-                        importedVnIndicies.push_back( (ushort) Utils::strToInt(separatedValues[1]) -1 );
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        cout << "E: File opening failure: " << file << endl;
-        exit(-1);
-    }
-
-    //we compute the vertex normals for now
-    vector<glm::vec3> normals = computeNormals(importedVIndicies,importedV);
-
-
-
-    return new Mesh(importedV,normals,importedVt,importedVIndicies);
-}
-*/
-
-
 Mesh* MeshLoader::LoadMesh(const string &file)
 {
     ifstream objFile(file.c_str());
@@ -152,7 +68,7 @@ Mesh* MeshLoader::LoadMesh(const string &file)
     }
     else
     {
-        cout << "E: file opening failure: " << file << endl;
+        cout << "E: File opening failure: " << file << endl;
         exit(1);
     }
 
@@ -231,55 +147,3 @@ vector<glm::vec2> MeshLoader::genFakeUvs(uint amount)
 
     return fakeUvs;
 }
-
-/*
-glm::vec2 MeshLoader::parseLineAsVec2(const string &line, uint start)
-{
-    uint lineLenght = line.length();
-    const char* cLine = line.c_str();
-
-    uint spaceIndex = 0;
-    uint valuesStartIndex = start;
-
-    for(uint i = valuesStartIndex; i < lineLenght; i++)
-    {
-        if(cLine[i] == ' ')
-        {
-            spaceIndex = i;
-            break;
-        }
-    }
-
-    float x = parseFloat(line,valuesStartIndex,spaceIndex);
-    float y = parseFloat(line,spaceIndex+1,lineLenght);
-
-    return glm::vec2(x,y);
-}
-
-glm::vec3 MeshLoader::parseLineAsVec3(const string &line, uint start)
-{
-    uint lineLenght = line.length();
-    const char* cLine = line.c_str();
-
-    vector<uint> spaceIndices;
-    uint valuesStartIndex = start;
-
-    for(uint i = valuesStartIndex; i < lineLenght; i++)
-    {
-        if(cLine[i] == ' ')
-            spaceIndices.push_back(i);
-    }
-
-    float x = parseFloat(line,valuesStartIndex,spaceIndices[0]);
-    float y = parseFloat(line,spaceIndices[0]+1,spaceIndices[1]);
-    float z = parseFloat(line,spaceIndices[1]+1,lineLenght);
-
-    return glm::vec3(x,y,z);
-}
-
-float MeshLoader::parseFloat(const string &chars, uint start, uint end)
-{
-    return (float)atof(chars.substr(start,end-start).c_str());
-}
-
-*/

@@ -63,3 +63,52 @@ float Utils::degreesToRad(float angle)
 {
     return angle*(pi/180.f);
 }
+
+float Utils::radToDegrees(float angle)
+{
+    return angle*(180.f/pi);
+}
+
+
+glm::vec3 Utils::rotateAroundAxis(glm::vec3 vec, float angle, glm::vec3 axis)
+{
+    axis = glm::normalize(axis);
+    float radAngle = Utils::degreesToRad(angle);
+    float sinAngle = sin(radAngle);
+    float cosAngle = cos(radAngle);
+    glm::vec3 axisCrossVec = glm::cross(axis,vec);
+
+    glm::vec3 ret = vec*cosAngle;
+
+    ret = Utils::scaleAdd(sinAngle,axisCrossVec,ret);
+    ret = Utils::scaleAdd(glm::dot(axis,vec)*(1-cosAngle),axis,ret);
+
+    return ret;
+}
+
+glm::vec3 Utils::scaleAdd(float factor, glm::vec3 u, glm::vec3 v)
+{
+    return glm::vec3(factor*u.x+v.x,factor*u.y+v.y,factor*u.z+v.z);
+}
+
+glm::vec2 Utils::getAcceleration(glm::vec2 posT1, glm::vec2 posT2, float deltaT)
+{
+    float deltaX = posT2.x-posT1.x;
+    float deltaY = posT2.y-posT1.y;
+
+    glm::vec2 acceleration(0,0);
+    acceleration.x = deltaX/deltaT;
+    acceleration.y = deltaY/deltaT;
+
+    return acceleration;
+}
+
+bool XOR(bool a, bool b)
+{
+    return (a + b) % 2;
+}
+
+float Utils::getAngleBetweenVectors(glm::vec3 vec1, glm::vec3 vec2)
+{
+    return radToDegrees( acos( glm::dot(glm::normalize(vec1),glm::normalize(vec2)) ) );
+}

@@ -42,6 +42,7 @@ private:
     Camera* m_camera;
     Scene* m_scene;
     float m_i;
+    float m_speed;
 
 public:
     Display* display;

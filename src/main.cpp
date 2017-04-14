@@ -33,7 +33,7 @@ private:
         m_game->initScene();
         m_game->isRunning = true;
 
-        float frameTime = 1.0f/m_frameCap;
+        float frameTime = (float)Time::second/m_frameCap;
         uint frames = 0;
         ulong frameCounter = 0;
 
@@ -54,7 +54,7 @@ private:
             passedTime = startTime - lastTime;
             lastTime = startTime;
 
-            unprocessedTime+=passedTime/(float)Time::second;
+            unprocessedTime+=passedTime;
             frameCounter+=passedTime;
 
             while(unprocessedTime > frameTime)

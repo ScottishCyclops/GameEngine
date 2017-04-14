@@ -131,7 +131,7 @@ GLuint Shader::createShader(const string &code, GLenum type)
 
     if(shader == 0)
     {
-        cout << "E: Sahder creation failure" << endl;
+        cout << "E: Shader creation failure" << endl;
     }
 
     //we can have multiple codes, so it's an array in case

@@ -25,6 +25,7 @@ Display::Display(int width, int height, const string &title)
     m_height = height;
 
     SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_ShowCursor(SDL_DISABLE);
 
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE,8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,8);
@@ -90,7 +91,9 @@ void Display::setTitle(const string &thing)
 Display::~Display()
 {
     if(m_isOpen)
+    {
         cout << "W: Destroying display while opened" << endl;
+    }
 
     SDL_GL_DeleteContext(m_glContext);
     SDL_DestroyWindow(m_window);

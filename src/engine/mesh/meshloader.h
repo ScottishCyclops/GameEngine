@@ -33,24 +33,9 @@ private:
     static void parseLineAsVec2(const string &line, vector<glm::vec2>* vec);
     static void parseLineAsVec3(const string &line, vector<glm::vec3>* vec);
     static void parseLineAsShorts(const string &line, vector<ushort>* vec);
-    //static float parseFloat(const string &chars, uint start, uint end);
     static vector<glm::vec3> computeNormals(vector<ushort> vIndices, vector<glm::vec3> v);
     static vector<glm::vec2> genFakeUvs(uint amount);
-    /*
-    static void reIndexUvsAndNormals(bool hasUvs,
-                                     bool hasNormals,
-                                     vector<glm::vec3> v,
-                                     vector<glm::vec2> vt,
-                                     vector<glm::vec3> vn,
-                                     vector<ushort> vIndicies,
-                                     vector<ushort> vtIndicies,
-                                     vector<ushort> vnIndicies,
-                                     vector<glm::vec3>* outLocations,
-                                     vector<glm::vec3>* outNormals,
-                                     vector<glm::vec2>* outUVs);
 
-    static bool compareVerticies(bool hasUvs, bool hasNormals, glm::vec3* loc1, glm::vec3* norm1, glm::vec2* uv1, glm::vec3* loc2, glm::vec3* norm2, glm::vec2* uv2);
-    */
 };
 
 #endif // MESHLOADER_H

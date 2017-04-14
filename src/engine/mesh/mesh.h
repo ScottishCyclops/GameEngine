@@ -68,15 +68,18 @@ private:
     Transform* m_transform;
 public:
     Object(uint typeId, uint index, Mesh* mesh, Shader* shader, Texture* texture, Transform* transform);
+    Object(uint typeId, uint index, Mesh* mesh, Shader* shader, Transform* transform);
     void draw(Camera *camera, glm::vec3 *lightDir);
     Transform* getTransform(){return m_transform;}
 
     void translate(float x, float y, float z);
+    void translate(glm::vec3 translation);
     void rotateX(float angle);
     void rotateY(float angle);
     void rotateZ(float angle);
     void scale(float x, float y, float z);
     void scale(float w);
+    //void rotate(float angle, glm::vec3 axis);
 
     glm::vec3* getLoc(){return &m_transform->loc;}
     glm::vec3* getRot(){return &m_transform->rot;}
