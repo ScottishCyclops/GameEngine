@@ -36,15 +36,12 @@ vni = []
 hasNormals = False
 hasUvs = False
 
-
+#TODO: transform class to a dict
 class Vertex:
     def __init__(self, loc, norm, uv):
         self.loc = loc
         self.norm = norm
         self.uv = uv
-
-    def compare(self, v):
-        return self.loc == v.loc and self.norm == v.norm and self.uv == v.uv
 
 
 def importObj(file):
@@ -197,8 +194,9 @@ def writeOutput(file, string):
 
 
 def main():
+    #checking parameters
     if len(sys.argv) == 1:
-        print("No input file")
+        print("Usage: ./convertObj.py ./file.obj\nAdd any second argument to overwrite existing output.")
         sys.exit(0)
     inFile = sys.argv[1]
 
@@ -213,6 +211,7 @@ def main():
         print("File does not exist")
         sys.exit(1)
 
+    #checking output file
     outFile = inFile[0:-4] + OUT_EXT
     if os.path.isfile(outFile) and not overwrite:
         print("Output already exists, aborting")
