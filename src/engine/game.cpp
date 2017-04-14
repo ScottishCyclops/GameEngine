@@ -63,7 +63,18 @@ void Game::update()
     m_camera->rotate(Y_AXIS,acc.x);
     m_camera->rotate(X_AXIS,-acc.y);
 
-    m_mouse->resetPosition();
+    if(!m_kb->isKeyDown(SDL_SCANCODE_TAB))
+    {
+        if(display->getCursorVisibility())
+        {
+            display->setCursorVisibility(false);
+        }
+        m_mouse->resetPosition();
+    }
+    else
+    {
+        display->setCursorVisibility(true);
+    }
 
     //keys
     if(m_kb->isKeyDown(SDL_SCANCODE_ESCAPE))
@@ -106,6 +117,8 @@ void Game::update()
 void Game::render()
 {
     glm::vec3* light = new glm::vec3(.8,-.8,.6);
+    glm::vec4 projectedLight = glm::vec4(light->x,light->y,light->z,0.f) * m_camera->getView();
+    light = new glm::vec3(projectedLight.x,projectedLight.y,projectedLight.z);
 
     m_i+=.02f;
     //light->x = sin(m_i);
@@ -114,7 +127,7 @@ void Game::render()
     //m_scene->getObjects()->at(0)->setLoc(glm::vec3(0.f,0.f,abs(sin(m_i)*10)));
     //m_camera->translate(m_i,0,0);
 
-    //m_scene->getObjects()->at(0)->rotateY(.01f);
+    m_scene->getObjects()->at(0)->rotateY(.01f);
 
     for(uint i  = 0; i < m_scene->getObjects()->size(); i++)
     {

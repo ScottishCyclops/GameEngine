@@ -29,6 +29,7 @@ private:
     int m_width;
     int m_height;
     bool m_isOpen;
+    bool m_cursorVisibility;
 public:
     Display(int width, int height, const string &title);
     void clear();
@@ -36,11 +37,12 @@ public:
     void close();
 
     void setTitle(const string &thing);
+    bool getCursorVisibility(){return m_cursorVisibility;}
+    void setCursorVisibility(bool visible){m_cursorVisibility = visible; SDL_ShowCursor(m_cursorVisibility);}
 
     bool isOpen(){return m_isOpen;}
     int getWidth(){return m_width;}
     int getHeight(){return m_height;}
-
 
     ~Display();
 };

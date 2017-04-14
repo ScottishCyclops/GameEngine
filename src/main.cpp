@@ -122,8 +122,8 @@ public:
 
 int main()
 {
-    const int width = 1280;
-    const int height = 720;
+    const int width = 1280*2;
+    const int height = 720*2;
     const string title = "Miden Engine";
 
     Display d(width,height,title);

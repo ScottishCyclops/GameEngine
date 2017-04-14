@@ -25,7 +25,9 @@ Display::Display(int width, int height, const string &title)
     m_height = height;
 
     SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_ShowCursor(SDL_DISABLE);
+
+    m_cursorVisibility = false;
+    SDL_ShowCursor(m_cursorVisibility);
 
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE,8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,8);
