@@ -16,21 +16,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef TEXTURE_H
+#define TEXTURE_H
 
 #include "libs.h"
 
-#define pi 3.141592654
-
-class Utils
+class Texture
 {
+private:
+    GLuint m_glTexture;
+    string m_path;
+
 public:
-    static vector<string> splitStr(const string &str, const char &delim);
-    static int strToInt(string str);
-    static float strToFloat(string str);
-    static ushort strToUshort(string str);
-    static float degreesToRad(float angle);
+    uint width;
+    uint height;
+
+    Texture(const string &path);
+    void use(uint unit);
+    ~Texture();
 };
 
-#endif // UTILS_H
+#endif // TEXTURE_H

@@ -18,76 +18,221 @@
 
 #include "meshloader.h"
 
-Mesh* MeshLoader::LoadMesh(const string &file)
+/*
+Mesh* MeshLoader::LoadObjMesh(const string &file)
 {
     ifstream objFile(file.c_str());
 
     //the data we are going to get
-    vector<glm::vec3> v;
-    vector<glm::vec2> vt;
-    vector<glm::vec3> vn;
-    vector<uint> vIndicies;
-    vector<uint> vtIndicies;
-    vector<uint> vnIndicies;
+    vector<glm::vec3> importedV;
+    vector<glm::vec2> importedVt;
+    vector<glm::vec3> importedVn;
+    vector<ushort> importedVIndicies;
+    vector<ushort> importedVtIndicies;
+    vector<ushort> importedVnIndicies;
 
     bool hasNormals = false;
-    bool hasUVs = false;
+    bool hasUvs = false;
 
-    for(string line; getline(objFile, line);)
+    if(objFile.is_open())
     {
-        //transforming to QString to have better comparaison fonctions
-        const char* cLine = line.c_str();
 
-        //if we found a vertex
-        if(cLine[0] == 'v' && cLine[1] == ' ')
+        for(string line; getline(objFile, line);)
         {
-            v.push_back(parseLineAsVec3(line,2));
-        }
-        //we found a texture coord
-        else if(cLine[0] == 'v' && cLine[1] == 't')
-        {
-            hasUVs = true;
-            vt.push_back(parseLineAsVec2(line,3));
-        }
-        //we found a normal
-        else if(cLine[0] == 'v' && cLine[1] == 'n')
-        {
-            hasNormals = true;
-            vn.push_back(parseLineAsVec3(line,3));
-        }
-        //we found a face
-        else if(cLine[0] == 'f' && cLine[1] == ' ')
-        {
-            vector<string> values = Utils::splitStr(line,' ');
-            //we skip the "f " we start at 1
-            for(uint j = 1; j < values.size(); j++)
+            //transforming to QString to have better comparaison fonctions
+            const char* cLine = line.c_str();
+
+            //if we found a vertex
+            if(cLine[0] == 'v' && cLine[1] == ' ')
             {
-                vector<string> separatedValues = Utils::splitStr(values[j],'/');
+                importedV.push_back(parseLineAsVec3(line,2));
+            }
+            //we found a texture coord
+            else if(cLine[0] == 'v' && cLine[1] == 't')
+            {
+                hasUvs = true;
+                importedVt.push_back(parseLineAsVec2(line,3));
+            }
+            //we found a normal
+            else if(cLine[0] == 'v' && cLine[1] == 'n')
+            {
+                hasNormals = true;
+                importedVn.push_back(parseLineAsVec3(line,3));
+            }
+            //we found a face
+            else if(cLine[0] == 'f' && cLine[1] == ' ')
+            {
+                vector<string> values = Utils::splitStr(line,' ');
+                //we skip the "f " we start at 1
+                for(uint j = 1; j < values.size(); j++)
+                {
+                    vector<string> separatedValues = Utils::splitStr(values[j],'/');
 
-                vIndicies.push_back(  (uint) Utils::strToInt(separatedValues[0]) -1 );
-                if(hasUVs)
-                {
-                    vtIndicies.push_back( (uint) Utils::strToInt(separatedValues[1]) -1 );
-                    if(hasNormals)
+                    importedVIndicies.push_back(  (ushort) Utils::strToInt(separatedValues[0]) -1 );
+                    if(hasUvs)
                     {
-                        vnIndicies.push_back( (uint) Utils::strToInt(separatedValues[2]) -1 );
+                        importedVtIndicies.push_back( (ushort) Utils::strToInt(separatedValues[1]) -1 );
+                        if(hasNormals)
+                        {
+                            importedVnIndicies.push_back( (ushort) Utils::strToInt(separatedValues[2]) -1 );
+                        }
                     }
-                }
-                else if(hasNormals)
-                {
-                    //if we don't have uvs but normals, they will be at index 1
-                    vnIndicies.push_back( (uint) Utils::strToInt(separatedValues[1]) -1 );
+                    else if(hasNormals)
+                    {
+                        //if we don't have uvs but normals, they will be at index 1
+                        importedVnIndicies.push_back( (ushort) Utils::strToInt(separatedValues[1]) -1 );
+                    }
                 }
             }
         }
     }
+    else
+    {
+        cout << "E: File opening failure: " << file << endl;
+        exit(-1);
+    }
 
     //we compute the vertex normals for now
-    vector<glm::vec3> normals = computeNormals(vIndicies,v);
+    vector<glm::vec3> normals = computeNormals(importedVIndicies,importedV);
 
-    return new Mesh(v,normals,vIndicies);
+
+
+    return new Mesh(importedV,normals,importedVt,importedVIndicies);
+}
+*/
+
+
+Mesh* MeshLoader::LoadMesh(const string &file)
+{
+    ifstream objFile(file.c_str());
+
+    vector<glm::vec3> v;
+    vector<glm::vec3> n;
+    vector<glm::vec2> t;
+    vector<ushort>    f;
+
+    bool hasNormals = false;
+    bool hasUvs = false;
+
+    if(objFile.is_open())
+    {
+
+        for(string line; getline(objFile, line);)
+        {
+            const char* cLine = line.c_str();
+            int lenght = line.length();
+
+            if(cLine[0] == 'o')
+            {
+                //the comment, we ignore it
+            }
+            else if(cLine[0] == 'v')
+            {
+                //the locations array
+                parseLineAsVec3(line.substr(2,lenght),&v);
+            }
+            else if(cLine[0] == 'n')
+            {
+                //the normals array
+                hasNormals = true;
+                parseLineAsVec3(line.substr(2,lenght),&n);
+            }
+            else if(cLine[0] == 't')
+            {
+                //the uvs array
+                hasUvs = true;
+                parseLineAsVec2(line.substr(2,lenght),&t);
+            }
+            else if(cLine[0] == 'f')
+            {
+                //the faces array
+                parseLineAsShorts(line.substr(2,lenght),&f);
+            }
+        }
+    }
+    else
+    {
+        cout << "E: file opening failure: " << file << endl;
+        exit(1);
+    }
+
+    if(!hasNormals)
+    {
+        n = computeNormals(f,v);
+    }
+
+    if(!hasUvs)
+    {
+        t = genFakeUvs(f.size());
+    }
+
+    return new Mesh(v,n,t,f);
 }
 
+void MeshLoader::parseLineAsVec3(const string &line, vector<glm::vec3>* vec)
+{
+    vector<string> data = Utils::splitStr(line,' ');
+    for(uint i = 0; i < data.size(); i+=3)
+    {
+        vec->push_back(glm::vec3(Utils::strToFloat(data[i]),Utils::strToFloat(data[i+1]),Utils::strToFloat(data[i+2])));
+    }
+}
+void MeshLoader::parseLineAsVec2(const string &line, vector<glm::vec2>* vec)
+{
+    vector<string> data = Utils::splitStr(line,' ');
+    for(uint i = 0; i < data.size(); i+=2)
+    {
+        vec->push_back(glm::vec2(Utils::strToFloat(data[i]),Utils::strToFloat(data[i+1])));
+    }
+}
+void MeshLoader::parseLineAsShorts(const string &line, vector<ushort>* vec)
+{
+    vector<string> data = Utils::splitStr(line,' ');
+    for(uint i = 0; i < data.size(); i++)
+    {
+        vec->push_back(Utils::strToUshort(data[i]));
+    }
+}
+
+vector<glm::vec3> MeshLoader::computeNormals(vector<ushort> vIndices, vector<glm::vec3> v)
+{
+    vector<glm::vec3> normals(v.size());
+
+    for(uint i = 0; i < vIndices.size(); i+=3)
+    {
+        int i0 = vIndices[i  ];
+        int i1 = vIndices[i+1];
+        int i2 = vIndices[i+2];
+
+        glm::vec3 v1 = v[i1] - v[i0];
+        glm::vec3 v2 = v[i2] - v[i0];
+
+        glm::vec3 normal = glm::normalize(glm::cross(v1, v2));
+
+        normals[i0] += normal;
+        normals[i1] += normal;
+        normals[i2] += normal;
+    }
+
+    for(uint i = 0; i < v.size(); i++)
+        normals[i] = glm::normalize(normals[i]);
+
+    return normals;
+}
+
+vector<glm::vec2> MeshLoader::genFakeUvs(uint amount)
+{
+    vector<glm::vec2> fakeUvs;
+
+    for(uint i = 0; i < amount; i++)
+    {
+        fakeUvs.push_back(glm::vec2(0,0));
+    }
+
+    return fakeUvs;
+}
+
+/*
 glm::vec2 MeshLoader::parseLineAsVec2(const string &line, uint start)
 {
     uint lineLenght = line.length();
@@ -137,28 +282,4 @@ float MeshLoader::parseFloat(const string &chars, uint start, uint end)
     return (float)atof(chars.substr(start,end-start).c_str());
 }
 
-vector<glm::vec3> MeshLoader::computeNormals(vector<uint> vIndices, vector<glm::vec3> v)
-{
-    vector<glm::vec3> normals(v.size());
-
-    for(uint i = 0; i < vIndices.size(); i+=3)
-    {
-        int i0 = vIndices[i  ];
-        int i1 = vIndices[i+1];
-        int i2 = vIndices[i+2];
-
-        glm::vec3 v1 = v[i1] - v[i0];
-        glm::vec3 v2 = v[i2] - v[i0];
-
-        glm::vec3 normal = glm::normalize(glm::cross(v1, v2));
-
-        normals[i0] += normal;
-        normals[i1] += normal;
-        normals[i2] += normal;
-    }
-
-    for(uint i = 0; i < v.size(); i++)
-        normals[i] = glm::normalize(normals[i]);
-
-    return normals;
-}
+*/

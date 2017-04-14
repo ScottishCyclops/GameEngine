@@ -22,13 +22,16 @@
 #include "libs.h"
 #include "engine/mesh/mesh.h"
 #include "engine/mesh/meshloader.h"
+#include "engine/texture/texture.h"
 
 const string meshFolder = resFolder+"/meshes/";
 
 enum
 {
     SMALL_ROCK_01_M,
-    BIG_FACE_M,
+    TEXTURED_CUBE_M,
+    BIG_M,
+    SPHERE_M,
 
     NUM_MESHES
 };
@@ -48,8 +51,8 @@ class Scene
 public:
     Scene();
     void updateMeshCache();
-    Object* addObject(uint id, Shader* shader);
-    Object* addObject(uint id, Shader* shader, Transform* transform);
+    Object* addObject(uint id, Shader* shader, Texture* texture);
+    Object* addObject(uint id, Shader* shader, Texture* texture, Transform* transform);
     void removeObject(Object *object);
     vector<Object*>* getObjects(){return &m_objects;}
 

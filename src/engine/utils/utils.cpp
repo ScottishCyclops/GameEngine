@@ -49,6 +49,16 @@ int Utils::strToInt(string str)
     return (int)atof(str.c_str());
 }
 
+float Utils::strToFloat(string str)
+{
+    return (float)atof(str.c_str());
+}
+
+ushort Utils::strToUshort(string str)
+{
+    return (ushort)atof(str.c_str());
+}
+
 float Utils::degreesToRad(float angle)
 {
     return angle*(pi/180.f);

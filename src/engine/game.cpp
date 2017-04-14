@@ -25,7 +25,7 @@ Game::Game(Display* display)
     isRunning = false;
     m_kb = new Keyboard();
     m_mouse = new Mouse();
-    m_camera = new Camera(glm::vec3(0,.5,-5),55.f,display->getWidth(),display->getHeight(),0.01f,300);
+    m_camera = new Camera(glm::vec3(0,0,-8),55.f,display->getWidth(),display->getHeight(),0.01f,300);
     m_scene = new Scene();
     m_i = 0;
 }
@@ -34,8 +34,9 @@ Game::Game(Display* display)
 void Game::initScene()
 {
     m_shader = new Shader(resFolder+"/shaders/basicShader");
+    m_tex = new Texture(resFolder+"/textures/img.bmp");
 
-    m_scene->addObject(SMALL_ROCK_01_M,m_shader,new Transform);
+    m_scene->addObject(BIG_M,m_shader,m_tex);
 
 }
 
@@ -62,7 +63,7 @@ void Game::update()
     if(m_kb->isMouseDown(SDL_BUTTON_LEFT))
     {
         Transform* trans = new Transform(m_mouse->toWorldSpace(m_mouse->getPos(),m_camera));
-        m_scene->addObject(SMALL_ROCK_01_M,m_shader,trans);
+        m_scene->addObject(SMALL_ROCK_01_M,m_shader,m_tex,trans);
     }
 
 }
@@ -71,16 +72,17 @@ void Game::render()
 {
     glm::vec3* light = new glm::vec3(.5,-.8,.1);
 
-     m_scene->getObjects()->at(0)->rotateY(.01f);
+    m_i+=.02f;
+    light->x = sin(m_i);
+    light->y = cos(m_i);
+    //m_scene->getObjects()->at(0)->rotateY(.01f);
+
     for(uint i  = 0; i < m_scene->getObjects()->size(); i++)
     {
         m_scene->getObjects()->at(i)->draw(m_camera,light);
     }
     /*
 
-    m_i+=.02f;
-    //light->x = sin(m_i);
-    //light->y = cos(m_i);
 
     m_meshes[1].translate(0,0,sin(m_i)/6.f);
 

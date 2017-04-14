@@ -25,15 +25,31 @@ Scene::Scene() : m_meshes(NUM_MESHES)
     m_meshes[SMALL_ROCK_01_M] =
     {
         SMALL_ROCK_01_M,
-        "rock.obj",
+        "rock.obgl",
         0,
         NULL
     };
 
-    m_meshes[BIG_FACE_M] =
+    m_meshes[TEXTURED_CUBE_M] =
     {
-        BIG_FACE_M,
-        "big.obj",
+        TEXTURED_CUBE_M,
+        "cube-uv.obgl",
+        0,
+        NULL
+    };
+
+    m_meshes[BIG_M] =
+    {
+        BIG_M,
+        "big.obgl",
+        0,
+        NULL
+    };
+
+    m_meshes[SPHERE_M] =
+    {
+        SPHERE_M,
+        "sphere.obgl",
         0,
         NULL
     };
@@ -58,7 +74,13 @@ void Scene::unloadMesh(uint id)
     m_meshes[id].mesh = NULL;
 }
 
-Object* Scene::addObject(uint id, Shader* shader, Transform *transform)
+
+Object* Scene::addObject(uint id, Shader* shader, Texture* texture)
+{
+    return addObject(id,shader,texture,new Transform);
+}
+
+Object* Scene::addObject(uint id, Shader* shader, Texture* texture, Transform *transform)
 {
     //if the mesh isn't loaded, we load it
     if(m_meshes[id].usage == 0)
@@ -67,7 +89,7 @@ Object* Scene::addObject(uint id, Shader* shader, Transform *transform)
     }
     m_meshes[id].usage++;
 
-    m_objects.push_back(new Object(id, m_objects.size(), m_meshes[id].mesh,shader,transform));
+    m_objects.push_back(new Object(id, m_objects.size(), m_meshes[id].mesh,shader,texture,transform));
 
     //we just added it so technicly it's the last one
     return m_objects[-1];

@@ -29,11 +29,13 @@
 #include "engine/mesh/meshloader.h"
 #include "engine/display.h"
 #include "engine/scene.h"
+#include "engine/texture/texture.h"
 
 class Game
 {
 private:
     Shader* m_shader;
+    Texture* m_tex;
     SDL_Event m_e;
     Mouse* m_mouse;
     Keyboard* m_kb;

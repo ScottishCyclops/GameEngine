@@ -20,10 +20,11 @@
 
 //Mesh
 
-Mesh::Mesh(vector<glm::vec3> positions, vector<glm::vec3> normals, vector<uint> indicies)
+Mesh::Mesh(vector<glm::vec3> positions, vector<glm::vec3> normals, vector<glm::vec2> uvs, vector<ushort> indicies)
 {
     m_positions = positions;
     m_normals = normals;
+    m_uvs = uvs;
     m_ibo = indicies;
 
     glGenVertexArrays(1, &m_vao);
@@ -44,6 +45,12 @@ Mesh::Mesh(vector<glm::vec3> positions, vector<glm::vec3> normals, vector<uint> 
     glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(m_normals[0]),&m_normals[0],GL_STATIC_DRAW);
     glEnableVertexAttribArray(NORMAL_VB);
     glVertexAttribPointer(NORMAL_VB,3,GL_FLOAT,GL_FALSE,0,0);
+
+    //UV buffer
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo[UV_VB]);
+    glBufferData(GL_ARRAY_BUFFER, m_uvs.size() * sizeof(m_uvs[0]),&m_uvs[0],GL_STATIC_DRAW);
+    glEnableVertexAttribArray(UV_VB);
+    glVertexAttribPointer(UV_VB,2,GL_FLOAT,GL_FALSE,0,0);
 
     //Indicies buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo[INDEX_VB]);
@@ -75,21 +82,13 @@ Mesh::~Mesh()
 
 //Object
 
-Object::Object(uint typeId, uint index, Mesh *mesh, Shader* shader)
+Object::Object(uint typeId, uint index, Mesh *mesh, Shader* shader, Texture* texture, Transform* transform)
 {
     m_typeId = typeId;
     m_index = index;
     m_mesh = mesh;
     m_shader = shader;
-    m_transform = new Transform;
-}
-
-Object::Object(uint typeId, uint index, Mesh *mesh, Shader* shader, Transform* transform)
-{
-    m_typeId = typeId;
-    m_index = index;
-    m_mesh = mesh;
-    m_shader = shader;
+    m_texture = texture;
     m_transform = transform;
 }
 
@@ -99,9 +98,12 @@ void Object::draw(Camera* camera, glm::vec3* lightDir)
     m_shader->use();
     m_shader->update(m_transform,camera,lightDir);
 
+    m_texture->use(0);
+
     glBindVertexArray(*m_mesh->getVao());
 
-    glDrawElements(GL_TRIANGLES,m_mesh->getDrawCount(),GL_UNSIGNED_INT,0);
+    //UNSIGNED SHORT takes less memory than unsigned int
+    glDrawElements(GL_TRIANGLES,m_mesh->getDrawCount(),GL_UNSIGNED_SHORT,0);
 
     glBindVertexArray(0);
 }

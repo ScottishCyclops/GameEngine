@@ -23,24 +23,34 @@
 
 #include "engine/utils/transform.h"
 #include "engine/mesh/shader.h"
+#include "engine/texture/texture.h"
+
+struct Vertex
+{
+    glm::vec3 location;
+    glm::vec3 normal;
+    glm::vec2 uvs;
+};
 
 class Mesh
 {
 private:
     vector<glm::vec3> m_positions;
     vector<glm::vec3> m_normals;
-    vector<uint> m_ibo;
+    vector<glm::vec2> m_uvs;
+    vector<ushort> m_ibo;
     enum
     {
         POSITION_VB,
         NORMAL_VB,
+        UV_VB,
         INDEX_VB,
         NUM_BUFFERS,
     };
     GLuint m_vao;
     GLuint m_vbo[NUM_BUFFERS];
 public:
-    Mesh(vector<glm::vec3> positions, vector<glm::vec3> normals, vector<uint> indicies);
+    Mesh(vector<glm::vec3> positions, vector<glm::vec3> normals, vector<glm::vec2> uvs, vector<ushort> indicies);
     GLuint* getVao();
     uint getDrawCount();
     void destroy();
@@ -54,10 +64,10 @@ private:
     uint m_index;
     Mesh* m_mesh;
     Shader* m_shader;
+    Texture* m_texture;
     Transform* m_transform;
 public:
-    Object(uint typeId, uint index, Mesh* mesh, Shader* shader);
-    Object(uint typeId, uint index, Mesh* mesh, Shader* shader, Transform* transform);
+    Object(uint typeId, uint index, Mesh* mesh, Shader* shader, Texture* texture, Transform* transform);
     void draw(Camera *camera, glm::vec3 *lightDir);
     Transform* getTransform(){return m_transform;}
 

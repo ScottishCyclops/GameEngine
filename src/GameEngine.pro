@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     engine/camera.cpp\
     engine/mesh/meshloader.cpp\
     engine/utils/utils.cpp \
-    engine/scene.cpp
+    engine/scene.cpp \
+    engine/texture/texture.cpp
 
 HEADERS += \
     engine/display.h \
@@ -31,4 +32,6 @@ HEADERS += \
     engine/camera.h \
     engine/mesh/meshloader.h \
     engine/utils/utils.h \
-    engine/scene.h
+    engine/scene.h \
+    engine/texture/stb_image.h \
+    engine/texture/texture.h
