@@ -18,48 +18,97 @@
 
 #include "scene.h"
 
-Scene::Scene() : m_meshes(NUM_MESHES)
+Scene::Scene() :
+    m_meshes(NUM_MESHES),
+    m_textures(NUM_TEXTURES),
+    m_shaders(NUM_SHADERS)
 {
     //initialize all mesh data that is going to be necessary later
 
+    //meshes
     m_meshes[SMALL_ROCK_01_M] =
     {
         SMALL_ROCK_01_M,
         "rock.obgl",
+        RUSSIAN_T,
+        BASIC_S,
         0,
-        NULL
+        NULL,
     };
-
     m_meshes[BIG_M] =
     {
         BIG_M,
         "big.obgl",
+        SIMPLE_T,
+        BASIC_S,
         0,
         NULL
     };
-
-    m_meshes[TEST_M] =
-    {
-        TEST_M,
-        "test.obgl",
-        0,
-        NULL
-    };
-
     m_meshes[PISTOL_M] =
     {
         PISTOL_M,
         "pistol.obgl",
+        PISTOL_T,
+        BASIC_S,
         0,
         NULL
     };
-
     m_meshes[ANO_M] =
     {
         ANO_M,
         "ano.obgl",
+        ANO_T,
+        BASIC_S,
         0,
         NULL
+    };
+    m_meshes[GROUND_M] =
+    {
+        GROUND_M,
+        "ground.obgl",
+        RUSSIAN_T,
+        BASIC_S,
+        0,
+        NULL
+    };
+
+    //textures
+    m_textures[PISTOL_T] =
+    {
+        PISTOL_T,
+        "pistol.png",
+        0,
+        NULL
+    };
+    m_textures[RUSSIAN_T] =
+    {
+        RUSSIAN_T,
+        "img.bmp",
+        0,
+        NULL
+    };
+    m_textures[ANO_T] =
+    {
+        ANO_T,
+        "ano.png",
+        0,
+        NULL
+    };
+    m_textures[SIMPLE_T] =
+    {
+        SIMPLE_T,
+        "simple.png",
+        0,
+        NULL
+    };
+
+    //shaders
+    m_shaders[BASIC_S] =
+    {
+        BASIC_S,
+        "basicShader",
+        0,
+        NULL,
     };
 }
 
@@ -82,36 +131,100 @@ void Scene::unloadMesh(uint id)
     m_meshes[id].mesh = NULL;
 }
 
-void Scene::addObject(uint id, Shader* shader)
+void Scene::loadTex(uint id)
 {
-    return addObject(id,shader,new Texture("dummy"),new Transform);
+    m_textures[id].texture = new Texture(textureFolder+m_textures[id].fileName,id);
 }
 
-void Scene::addObject(uint id, Shader* shader, Texture* texture)
+void Scene::unloadTex(uint id)
 {
-    return addObject(id,shader,texture,new Transform);
+    m_textures[id].texture->destroy();
+    m_textures[id].texture = NULL;
 }
 
-void Scene::addObject(uint id, Shader* shader, Texture* texture, Transform *transform)
+void Scene::loadShader(uint id)
 {
-    //if the mesh isn't loaded, we load it
-    if(m_meshes[id].usage == 0)
+    m_shaders[id].shader = new Shader(shaderFolder+m_shaders[id].fileName);
+}
+
+void Scene::unloadShader(uint id)
+{
+    m_shaders[id].shader->destroy();
+    m_shaders[id].shader = NULL;
+}
+
+uint Scene::addObject(uint mesh)
+{
+    return addObject(mesh,-1,-1,new Transform);
+}
+
+uint Scene::addObject(uint mesh, int texture)
+{
+    return addObject(mesh,-1,texture,new Transform);
+}
+
+uint Scene::addObject(uint mesh, int shader, int texture)
+{
+    return addObject(mesh,shader,texture,new Transform);
+}
+
+uint Scene::addObject(uint mesh, int shader, int texture, Transform *transform)
+{
+    //undefined
+    if(shader == -1)
     {
-        loadMesh(id);
+        shader = m_meshes[mesh].defaultShader;
     }
-    m_meshes[id].usage++;
+    if(texture == -1)
+    {
+        texture = m_meshes[mesh].defaultTex;
+    }
 
-    m_objects.push_back(new Object(id, m_objects.size(), m_meshes[id].mesh,shader,texture,transform));
+    //if the mesh isn't loaded, we load it
+    if(m_meshes[mesh].usage == 0)
+    {
+        loadMesh(mesh);
+    }
+
+    //same for the shader
+    if(m_shaders[shader].usage == 0)
+    {
+        loadShader(shader);
+    }
+
+    //same for the tex
+    if(m_textures[texture].usage == 0)
+    {
+        loadTex(texture);
+    }
+
+    m_meshes[mesh].usage++;
+    m_shaders[shader].usage++;
+    m_textures[texture].usage++;
+
+    uint index = m_objects.size();
+
+    m_objects.push_back(new Object(mesh,shader,texture,index,
+                                   m_meshes[mesh].mesh,
+                                   m_shaders[shader].shader,
+                                   m_textures[texture].texture,
+                                   transform));
+
+    return index;
 }
 
-void Scene::removeObject(Object* object)
+void Scene::removeObject(uint id)
 {
-    m_meshes[object->getType()].usage--;
-    m_objects.erase(m_objects.begin()+object->getIndex());
+    uint type = m_objects[id]->getMeshId();
+
+    m_meshes[type].usage--;
+    m_objects.erase(m_objects.begin()+id);
 
     //remove the mesh data because it is no longer beeing used
-    if(m_meshes[object->getType()].usage == 0)
+    if(m_meshes[type].usage == 0)
     {
-        unloadMesh(object->getType());
+        unloadMesh(type);
     }
+
+    //TODO: remove tex and shader
 }

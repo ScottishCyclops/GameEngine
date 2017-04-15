@@ -37,8 +37,9 @@ public:
     void close();
 
     void setTitle(const string &thing);
+    void setClearColor(glm::vec3 color);
     bool getCursorVisibility(){return m_cursorVisibility;}
-    void setCursorVisibility(bool visible){m_cursorVisibility = visible; SDL_ShowCursor(m_cursorVisibility);}
+    void setCursorVisibility(bool visible);
 
     bool isOpen(){return m_isOpen;}
     int getWidth(){return m_width;}

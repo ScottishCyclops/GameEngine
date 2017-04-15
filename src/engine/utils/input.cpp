@@ -18,38 +18,57 @@
 
 #include "input.h"
 
-Keyboard::Keyboard()
+Keyboard::Keyboard() :
+    m_keyState(m_numKeys),
+    m_lastKeyState(m_numKeys),
+    m_buttonState(m_numButtons),
+    m_lastButtonState(m_numButtons)
 {
-    m_keyState.reserve(m_numKeys);
-    m_mouseState.reserve(m_numButtons);
 
-    for(int i = 0; i < m_numKeys; i++)
+    for(uint i = 0; i < m_numKeys; i++)
     {
         m_keyState[i] = false;
+        m_lastKeyState[i] = false;
     }
 
-    for(int i = 0; i < m_numButtons; i++)
+    for(uint i = 0; i < m_numButtons; i++)
     {
-        m_mouseState[i] = false;
+        m_buttonState[i] = false;
+        m_lastButtonState[i] = false;
     }
 }
 
-void Keyboard::update(SDL_Event *e)
+void Keyboard::update()
 {
+    for(uint i = 0; i < m_numKeys; i++)
+    {
+        m_lastKeyState[i] = m_keyState[i];
+    }
+    for(uint i = 0; i < m_numButtons; i++)
+    {
+        m_lastButtonState[i] = m_buttonState[i];
+    }
+}
+
+void Keyboard::event(SDL_Event *e)
+{
+    SDL_Scancode* keyCode = &e->key.keysym.scancode;
+    unsigned char* buttonCode = &e->button.button;
+
     if(e->type == SDL_KEYDOWN)
     {
-        m_keyState[e->key.keysym.scancode] = true;
+        m_keyState[*keyCode] = true;
     }
     else if(e->type == SDL_KEYUP)
     {
-        m_keyState[e->key.keysym.scancode] = false;
+        m_keyState[*keyCode] = false;
     }
     else if(e->type == SDL_MOUSEBUTTONDOWN)
     {
-        m_mouseState[e->button.button] = true;
+        m_buttonState[*buttonCode] = true;
     }
     else if(e->type == SDL_MOUSEBUTTONUP)
     {
-        m_mouseState[e->button.button] = false;
+        m_buttonState[*buttonCode] = false;
     }
 }

@@ -30,10 +30,10 @@ private:
 
     void run()
     {
-        m_game->initScene();
+        float frameTime = (float)Time::second/m_frameCap;
+        m_game->initScene(&frameTime);
         m_game->isRunning = true;
 
-        float frameTime = (float)Time::second/m_frameCap;
         uint frames = 0;
         ulong frameCounter = 0;
 
@@ -122,8 +122,8 @@ public:
 
 int main()
 {
-    const int width = 1280*2;
-    const int height = 720*2;
+    const int width = 1280;
+    const int height = 720;
     const string title = "Miden Engine";
 
     Display d(width,height,title);

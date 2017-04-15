@@ -24,7 +24,7 @@ Shader::Shader(const string &shaderName)
     if(m_glProgram == 0)
     {
         cout << "E: Program creation failure" << endl;
-        return;
+        exit(1);
     }
 
     m_shaders[0] = createShader(loadShader(shaderName + vertexShaderExt), GL_VERTEX_SHADER);
@@ -47,7 +47,9 @@ Shader::Shader(const string &shaderName)
 
     //transform is the name used in GLSL. This gets us the location of that variable so
     //we can use it from the CPU
-    m_uniforms[TRANSFORM_U] = glGetUniformLocation(m_glProgram,"transform");
+    m_uniforms[PROJECTION_U] = glGetUniformLocation(m_glProgram,"projection");
+    m_uniforms[VIEW_U] = glGetUniformLocation(m_glProgram,"view");
+    m_uniforms[MODEL_U] = glGetUniformLocation(m_glProgram,"model");
     m_uniforms[LIGHT_DIR_U] = glGetUniformLocation(m_glProgram,"lightDir");
 }
 
@@ -58,14 +60,21 @@ void Shader::use()
 
 void Shader::update(Transform *transform, Camera* camera, glm::vec3* lightDir)
 {
-    //model view projection
-    glm::mat4 mvp = camera->getViewProjection() * transform->getModel();
+    //model view projection, inversed for calculation !
+
+    glm::mat4 projection = camera->getProjection();
+    glm::mat4 view = camera->getView();
+    glm::mat4 model = transform->getModel();
+
     //4D matrix with float values
-    glUniformMatrix4fv(m_uniforms[TRANSFORM_U],1,GL_FALSE,&mvp[0][0]);
+    glUniformMatrix4fv(m_uniforms[PROJECTION_U],1,GL_FALSE,&projection[0][0]);
+    glUniformMatrix4fv(m_uniforms[VIEW_U],1,GL_FALSE,&view[0][0]);
+    glUniformMatrix4fv(m_uniforms[MODEL_U],1,GL_FALSE,&model[0][0]);
+
     glUniform3fv(m_uniforms[LIGHT_DIR_U],1,(float*)lightDir);
 }
 
-Shader::~Shader()
+void Shader::destroy()
 {
     for(uint i = 0; i < NUM_SHADERS; i++)
     {
@@ -73,6 +82,11 @@ Shader::~Shader()
         glDeleteShader(m_shaders[i]);
     }
     glDeleteProgram(m_glProgram);
+}
+
+Shader::~Shader()
+{
+    destroy();
 }
 
 // static fonctions
@@ -93,6 +107,7 @@ string Shader::loadShader(const string &fileName)
     else
     {
         cout << "E: File opening failure: " << fileName << endl;
+        exit(1);
     }
 
     return output;
@@ -116,6 +131,7 @@ void Shader::checkShaderError(GLuint check, GLuint flag, bool isProgram, const s
             glGetShaderInfoLog(check, sizeof(error), NULL, error);
 
         cout << "E: " << errorMessage << ": " << error << endl;
+        exit(1);
     }
 }
 

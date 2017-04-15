@@ -37,7 +37,7 @@ Camera::Camera(glm::vec3 pos, float fov, int width, int height, float minClip, f
 glm::mat4 Camera::getView()
 {
     //rotation order : y x z
-    return glm::lookAt(m_pos,m_pos+getForward(),getUp());
+    return glm::lookAt(m_pos,m_pos+(*getForward()),*getUp());
 }
 
 glm::mat4 Camera::getProjection()
@@ -50,44 +50,9 @@ glm::mat4 Camera::getViewProjection()
     return getProjection()*getView();
 }
 
-glm::vec3 Camera::getPos()
-{
-    return m_pos;
-}
-
-glm::vec3 Camera::getForward()
-{
-    return m_forward;
-}
-
-glm::vec3 Camera::getUp()
-{
-    return m_up;
-}
-
-glm::vec3 Camera::getLeft()
-{
-    return m_left;
-}
-
 void Camera::rotate(uint axis, float angle)
 {
     glm::vec3 localAxis(0,0,0);
-    //transform axis to local
-    /*
-    if(axis == X_AXIS)
-    {
-        float upAngle = Utils::getAngleBetweenVectors(m_forward,upVector);
-        if(upAngle < 10 && angle > 0)
-        {
-            return;
-        }
-        else if(upAngle > 170 && angle < 0)
-        {
-            return;
-        }
-    }
-    */
 
     if(axis == X_AXIS)
     {
@@ -151,69 +116,7 @@ void Camera::translate(uint axis, float amount)
         direction = glm::normalize(glm::cross(upVector,m_left));
     }
 
-    m_pos = Utils::scaleAdd(amount,direction,m_pos);
+    //m_pos = Utils::scaleAdd(amount,direction,m_pos);
+    m_pos = amount*direction+m_pos;
 
 }
-
-void Camera::translate(float x, float y, float z)
-{
-    //we invert x
-    m_pos.x-=x;
-    m_pos.y+=y;
-    m_pos.z+=z;
-}
-
-void Camera::translate(glm::vec3 translation)
-{
-    //we invert x
-    m_pos+=translation;
-}
-
-/*
-void Camera::rotateX(float angle)
-{
-    m_rotation.x+=angle;
-}
-
-void Camera::rotateY(float angle)
-{
-    m_rotation.y+=angle;
-}
-
-
-void Camera::rotateX(float angle)
-{
-    glm::vec3 fakeX = glm::normalize(glm::cross(upVector,getForward()));
-
-    m_forward = glm::normalize(Camera::rotate(Utils::degreesToRad(angle),fakeX,m_forward));
-    m_up = glm::normalize(glm::cross(m_forward,fakeX));
-
-}
-
-void Camera::rotateY(float angle)
-{
-    glm::vec3 fakeX = glm::normalize(glm::cross(upVector,getForward()));
-
-    m_forward = glm::normalize(Camera::rotate(Utils::degreesToRad(angle),upVector,m_forward));
-    m_up = glm::normalize(glm::cross(m_forward,fakeX));
-
-}
-
-glm::vec3 Camera::rotate(float angle, glm::vec3 axis, glm::vec3 vec)
-{
-    float sinHalgAngle = sin(angle/2.f);
-    float cosHalgAngle = cos(angle/2.f);
-
-    glm::quat rotation;
-    rotation.w = 1.f    * cosHalgAngle;
-    rotation.x = axis.x * sinHalgAngle;
-    rotation.y = axis.y * sinHalgAngle;
-    rotation.z = axis.z * sinHalgAngle;
-    glm::quat conj = glm::conjugate(rotation);
-    glm::quat pos = glm::quat(vec.x,vec.y,vec.z,0.f);
-
-    glm::quat result = (rotation * pos) * conj;
-
-    return glm::vec3(result.x,result.y,result.z);
-}
-*/

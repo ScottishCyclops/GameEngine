@@ -22,7 +22,7 @@
 #include "libs.h"
 
 #include "engine/utils/transform.h"
-#include "engine/mesh/shader.h"
+#include "engine/shader/shader.h"
 #include "engine/texture/texture.h"
 
 struct Vertex
@@ -60,15 +60,17 @@ public:
 class Object
 {
 private:
-    uint m_typeId;
+    uint m_meshId;
+    uint m_shaderId;
+    uint m_texId;
     uint m_index;
+
     Mesh* m_mesh;
     Shader* m_shader;
     Texture* m_texture;
     Transform* m_transform;
 public:
-    Object(uint typeId, uint index, Mesh* mesh, Shader* shader, Texture* texture, Transform* transform);
-    Object(uint typeId, uint index, Mesh* mesh, Shader* shader, Transform* transform);
+    Object(uint meshId, uint shaderId, uint texId, uint index, Mesh* mesh, Shader* shader, Texture* texture, Transform* transform);
     void draw(Camera *camera, glm::vec3 *lightDir);
     Transform* getTransform(){return m_transform;}
 
@@ -84,7 +86,9 @@ public:
     glm::vec3* getLoc(){return &m_transform->loc;}
     glm::vec3* getRot(){return &m_transform->rot;}
     glm::vec3* getScale(){return &m_transform->scale;}
-    uint getType(){return m_typeId;}
+    uint getMeshId(){return m_meshId;}
+    uint getShaderId(){return m_shaderId;}
+    uint getTexId(){return m_texId;}
     uint getIndex(){return m_index;}
 
     void setLoc(glm::vec3 loc){m_transform->loc = loc;}

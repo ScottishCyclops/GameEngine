@@ -108,29 +108,45 @@ public:
 class Keyboard
 {
 private:
-    static const int m_numKeys = 256;
-    static const int m_numButtons = 3;
+    static const uint m_numKeys = 285;
+    static const uint m_numButtons = 3;
     vector<bool> m_keyState;
-    vector<bool> m_mouseState;
+    vector<bool> m_lastKeyState;
+    vector<bool> m_buttonState;
+    vector<bool> m_lastButtonState;
 public:
     Keyboard();
-    void update(SDL_Event* e);
+    void update();
+    void event(SDL_Event* e);
 
     bool isKeyDown(int keyCode)
     {
         return m_keyState[keyCode];
     }
-    bool isKeyUp(int keyCode)
+
+    bool isKeyPressed(int keyCode)
     {
-        return !m_keyState[keyCode];
+        return m_keyState[keyCode] && !m_lastKeyState[keyCode];
     }
-    bool isMouseDown(int buttonCode)
+
+    bool isKeyReleased(int keyCode)
     {
-        return m_mouseState[buttonCode];
+        return !m_keyState[keyCode] && m_lastKeyState[keyCode];
     }
-    bool isMouseUp(int buttonCode)
+
+    bool isButtonDown(int buttonCode)
     {
-        return m_mouseState[buttonCode];
+        return m_buttonState[buttonCode];
+    }
+
+    bool isButtonPressed(int buttonCode)
+    {
+        return m_buttonState[buttonCode] && !m_lastButtonState[buttonCode];
+    }
+
+    bool isButtonReleased(int buttonCode)
+    {
+        return !m_buttonState[buttonCode] && m_lastButtonState[buttonCode];
     }
 };
 

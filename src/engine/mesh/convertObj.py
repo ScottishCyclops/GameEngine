@@ -43,6 +43,14 @@ class Vertex:
         self.norm = norm
         self.uv = uv
 
+def parseLine(string, separator, start = None, end = None):
+    """returns a list of elements from a string, with a separator, from a given index"""
+    if start == None:
+        start = 0
+    if end == None:
+        end = len(string)
+    return string[start:end].split(separator)
+
 
 def importObj(file):
     """Imports all the data from an Obj file"""
@@ -56,6 +64,9 @@ def importObj(file):
     global hasNormals
     global hasUvs
 
+    #TODO: handle triangulation
+    #TODO: hangle multi-object files
+
     # r -> read mode
     with open(file, "r") as f:
         content = f.read()
@@ -64,26 +75,35 @@ def importObj(file):
 
     for line in lines:
         if line.startswith("v "):
-            data = line[2:].split(" ")
+            #3ds max exporter uses 2 spaces
+            if("  " in line):
+                data = parseLine(line," ",3)
+            else:
+                data = parseLine(line," ",2)
             v.append((float(data[0]), float(data[1]), float(data[2])))
 
         elif line.startswith("vt "):
             hasUvs = True
-            data = line[3:].split(" ")
+            data = parseLine(line," ",3)
             vt.append((float(data[0]), float(data[1])))
 
         elif line.startswith("vn "):
             hasNormals = True
-            data = line[3:].split(" ")
+            data = parseLine(line," ",3)
             vn.append((float(data[0]), float(data[1]), float(data[2])))
 
         elif line.startswith("f "):
-            data = line[2:].split(" ")
+            #3ds max exporter ends lines with space
+            if line.endswith(" "):
+                data = parseLine(line," ",2,-1)
+            else:
+                data = parseLine(line," ",2)
+            #some exporters use 2 slashes
             separator = "/"
             if "//" in line:
                 separator = "//"
             for d in data:
-                x = d.split(separator)
+                x = parseLine(d,separator)
                 vi.append(int(x[0]) - 1)
                 if hasUvs:
                     vti.append(int(x[1]) - 1)

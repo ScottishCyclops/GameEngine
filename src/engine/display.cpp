@@ -38,10 +38,14 @@ Display::Display(int width, int height, const string &title)
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
     SDL_GL_SetSwapInterval(0);
 
-    m_window = SDL_CreateWindow(title.c_str(),0,0,width,height,SDL_WINDOW_OPENGL);
+    SDL_DisplayMode mode;
+    SDL_GetDesktopDisplayMode(0,&mode);
+
+    m_window = SDL_CreateWindow(title.c_str(),mode.w/2.f,mode.h/2.f,width,height,SDL_WINDOW_OPENGL);
     if(m_window == NULL)
     {
         cout << "E: Window creation failure" << endl;
+        exit(1);
     }
 
     m_glContext = SDL_GL_CreateContext(m_window);
@@ -51,6 +55,7 @@ Display::Display(int width, int height, const string &title)
     if(status != GLEW_OK)
     {
         cout << "E : GLEW initialization failure: " << glewGetErrorString(status) << endl;
+        exit(1);
     }
 
     //OpenGL options
@@ -88,6 +93,20 @@ void Display::close()
 void Display::setTitle(const string &thing)
 {
     SDL_SetWindowTitle(m_window,thing.c_str());
+}
+
+void Display::setClearColor(glm::vec3 color)
+{
+    glClearColor(color.x,color.y,color.z,1);
+}
+
+void Display::setCursorVisibility(bool visible)
+{
+    if(visible != m_cursorVisibility)
+    {
+        m_cursorVisibility = visible;
+        SDL_ShowCursor(m_cursorVisibility);
+    }
 }
 
 Display::~Display()

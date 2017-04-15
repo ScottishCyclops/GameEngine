@@ -21,15 +21,10 @@
 
 #include "libs.h"
 
-#include "engine/mesh/mesh.h"
 #include "engine/utils/input.h"
-#include "engine/utils/transform.h"
 #include "engine/camera.h"
-#include "engine/mesh/shader.h"
-#include "engine/mesh/meshloader.h"
 #include "engine/display.h"
 #include "engine/scene.h"
-#include "engine/texture/texture.h"
 
 class Game
 {
@@ -41,16 +36,21 @@ private:
     Keyboard* m_kb;
     Camera* m_camera;
     Scene* m_scene;
+
     float m_i;
     float m_speed;
+    float m_camSensitivity;
+    float* m_timeDelta;
+    bool m_isMouseLocked;
 
 public:
     Display* display;
     bool isRunning;
 
     Game(Display *display);
-    void initScene();
+    void initScene(float* timeDelta);
     void update();
+    void mouseLook();
     void render();
     void quit();
 };

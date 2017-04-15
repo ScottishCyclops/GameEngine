@@ -31,7 +31,9 @@ class Shader
 private:
     enum
     {
-        TRANSFORM_U,
+        PROJECTION_U,
+        VIEW_U,
+        MODEL_U,
         LIGHT_DIR_U,
 
         NUM_UNIFORMS,
@@ -45,6 +47,7 @@ public:
     Shader(const string &shaderName);
     void use();
     void update(Transform* transform, Camera *camera, glm::vec3 *lightDir);
+    void destroy();
     ~Shader();
 
     static string loadShader(const string &fileName);

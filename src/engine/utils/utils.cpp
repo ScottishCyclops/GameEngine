@@ -80,15 +80,10 @@ glm::vec3 Utils::rotateAroundAxis(glm::vec3 vec, float angle, glm::vec3 axis)
 
     glm::vec3 ret = vec*cosAngle;
 
-    ret = Utils::scaleAdd(sinAngle,axisCrossVec,ret);
-    ret = Utils::scaleAdd(glm::dot(axis,vec)*(1-cosAngle),axis,ret);
+    ret = sinAngle*axisCrossVec + ret;
+    ret = (glm::dot(axis,vec)*(1-cosAngle))*axis+ret;
 
     return ret;
-}
-
-glm::vec3 Utils::scaleAdd(float factor, glm::vec3 u, glm::vec3 v)
-{
-    return glm::vec3(factor*u.x+v.x,factor*u.y+v.y,factor*u.z+v.z);
 }
 
 glm::vec2 Utils::getAcceleration(glm::vec2 posT1, glm::vec2 posT2, float deltaT)

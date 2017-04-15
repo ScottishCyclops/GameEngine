@@ -47,19 +47,17 @@ public:
     glm::mat4 getProjection();
     glm::mat4 getViewProjection();
 
-    glm::vec3 getPos();
-    glm::vec3 getUp();
-    glm::vec3 getForward();
-    glm::vec3 getLeft();
+    glm::vec3* getPos(){return &m_pos;}
+    glm::vec3* getUp(){return &m_up;}
+    glm::vec3* getForward(){return &m_forward;}
+    glm::vec3* getLeft(){return &m_left;}
+    int getWidth(){return m_width;}
+    int getHeight(){return m_height;}
+    float getFov(){return m_fov;}
 
-    void translate(float x, float y, float z);
-    void translate(glm::vec3 translation);
     void translate(uint axis, float amount);
     void rotate(uint axis, float angle);
 
-    int getWidth(){return m_width;}
-    int getHeight(){return m_height;}
-    int getFov(){return m_fov;}
 
 
 };

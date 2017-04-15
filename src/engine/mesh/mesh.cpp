@@ -82,33 +82,29 @@ Mesh::~Mesh()
 
 //Object
 
-Object::Object(uint typeId, uint index, Mesh *mesh, Shader* shader, Texture* texture, Transform* transform)
+Object::Object(uint meshId, uint shaderId, uint texId, uint index, Mesh *mesh, Shader* shader, Texture* texture, Transform* transform)
 {
-    m_typeId = typeId;
+    m_meshId = meshId;
+    m_shaderId = shaderId;
+    m_texId = texId;
     m_index = index;
+
     m_mesh = mesh;
     m_shader = shader;
     m_texture = texture;
     m_transform = transform;
 }
 
-Object::Object(uint typeId, uint index, Mesh *mesh, Shader *shader, Transform *transform)
-{
-    m_typeId = typeId;
-    m_index = index;
-    m_mesh = mesh;
-    m_shader = shader;
-    m_texture = new Texture("dummy");
-    m_transform = transform;
-}
-
-
 void Object::draw(Camera* camera, glm::vec3* lightDir)
 {
     m_shader->use();
     m_shader->update(m_transform,camera,lightDir);
 
-    m_texture->use(0);
+    //if we have specified a texture
+    if(m_texture != NULL)
+    {
+        m_texture->use();
+    }
 
     glBindVertexArray(*m_mesh->getVao());
 
@@ -149,16 +145,14 @@ void Object::rotateZ(float angle)
 
 void Object::scale(float x, float y, float z)
 {
-    m_transform->scale.x+=x;
-    m_transform->scale.y+=y;
-    m_transform->scale.z+=z;
+    m_transform->scale.x*=x;
+    m_transform->scale.y*=y;
+    m_transform->scale.z*=z;
 }
 
 void Object::scale(float w)
 {
-    m_transform->scale.x+=w;
-    m_transform->scale.y+=w;
-    m_transform->scale.z+=w;
+    m_transform->scale*= w;
 }
 /*
 void Object::rotate(float angle, glm::vec3 axis)

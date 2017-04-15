@@ -26,13 +26,15 @@ class Texture
 private:
     GLuint m_glTexture;
     string m_path;
+    uint m_id;
 
 public:
     uint width;
     uint height;
 
-    Texture(const string &path);
-    void use(uint unit);
+    Texture(const string &path, uint id);
+    void use();
+    void destroy();
     ~Texture();
 };
 
