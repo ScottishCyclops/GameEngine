@@ -19,6 +19,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "libs.h"
+
 const float pi = 3.14159265359f;
 
 enum Direction
@@ -31,7 +33,6 @@ enum Direction
     LOCAL_Z_AXIS
 };
 
-#include "libs.h"
 
 class Utils
 {

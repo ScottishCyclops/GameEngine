@@ -62,13 +62,11 @@ Display::Display(int width, int height, const string &title)
 
     glClearColor(.1f,.1f,.1f,1);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_CLAMP);
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
-
-    //gamma correction
-    //glEnable(GL_FRAMEBUFFER_SRGB);
 
     cout << "I: OpenGL " << glGetString(GL_VERSION) << endl;
     cout << "I: SDL " << +SDL_MAJOR_VERSION << "." << +SDL_MINOR_VERSION << "."  << +SDL_PATCHLEVEL << endl;

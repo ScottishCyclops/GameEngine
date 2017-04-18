@@ -1,0 +1,126 @@
+/*
+    Miden Engine, the real one. Built with OpenGL and SDL
+    Copyright (C) 2017 Scott Winkelmann <scottlandart@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#version 330
+
+struct BaseLight
+{
+    vec3 color;
+    float intensity;
+};
+
+struct SunLight
+{
+    BaseLight base;
+    vec3 direction;
+};
+
+in vec3 fsNormal;
+in vec3 fsViewNormal;
+in vec2 fsTexCoord;
+in vec3 fsWorldPos;
+
+out vec4 pixelColor;
+
+uniform vec3 ambiantLight;
+uniform sampler2D tex;
+
+uniform vec3 camPos;
+uniform vec3 specColor;
+uniform float specIntensity;
+uniform float hardness;
+
+uniform SunLight sun;
+
+vec4 desaturate(vec4 color, float amount)
+{
+
+    if(amount <= 0 || (color.x == color.y && color.x == color.z && color.y == color.z))
+    {
+        return color;
+    }
+    if(amount > 1)
+    {
+    amount = 1;
+    }
+
+
+    
+    float maxVal = max(color.x,max(color.y,color.z));
+        
+
+    float deltaR = maxVal-color.x;
+    float deltaG = maxVal-color.y;
+    float deltaB = maxVal-color.z;
+
+    float r,g,b;
+    
+    r = color.x+(deltaR*amount);
+    g = color.y+(deltaG*amount);
+    b = color.z+(deltaB*amount);
+
+    return vec4(r,g,b,color.w);
+}
+
+
+float map(float value, float inMin, float inMax, float outMin, float outMax)
+{
+  return (((value-inMin)/inMax)*outMax)+outMin;
+}
+
+vec4 computeLight(vec4 color, vec3 ambiant, BaseLight light, vec3 rayDirection, vec3 normal)
+{
+    float diffuseFactor = dot(normal,-rayDirection);
+    vec4 outputLight = vec4(ambiant,1.);    
+    vec4 specular = vec4(0.,0.,0.,1.);
+    float specFac = 0;
+    float correctedSpecFac = 0;
+
+    if(diffuseFactor > 0)
+    {
+        outputLight+= vec4(light.color,1.) * light.intensity * diffuseFactor;
+
+        vec3 forward = vec3(0.,0.,1.);
+        specFac = pow(dot(-forward,fsViewNormal),hardness);
+
+        //float error
+        if(specFac > 0)
+            correctedSpecFac = specFac;
+
+        if(specFac > 0)
+        {
+            specular = vec4(specColor,1.) * specIntensity * correctedSpecFac;
+        }
+    }
+    return desaturate(color,correctedSpecFac-.4) * (outputLight+specular);
+}
+
+vec4 computeSunLight(vec4 color, vec3 ambiant, SunLight light, vec3 normal)
+{
+    return computeLight(color, ambiant, light.base, -light.direction, normal);
+}
+
+void main()
+{
+
+    float fresnel = clamp(map(dot(-vec3(0.,0.,1.), fsViewNormal),0.,1.,0.5,-1.3),0.,1.);
+    vec4 backColor = vec4(1.,1.,1.,1.);
+    vec4 diffuse = mix(texture(tex,fsTexCoord),backColor,fresnel);
+
+    pixelColor = computeSunLight(diffuse,ambiantLight,sun,fsNormal);
+}

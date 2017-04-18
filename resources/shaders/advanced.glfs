@@ -1,0 +1,172 @@
+/*
+    Miden Engine, the real one. Built with OpenGL and SDL
+    Copyright (C) 2017 Scott Winkelmann <scottlandart@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#version 330
+
+const int MAX_POINTS_LIGHT = 4;
+
+struct BaseLight
+{
+    vec3 color;
+    float intensity;
+};
+
+struct SunLight
+{
+    BaseLight base;
+    vec3 direction;
+};
+
+//point light shin distance
+struct Attenuation
+{
+    float constant;
+    float linear;
+    float exponent;
+};
+
+struct PointLight
+{
+    BaseLight base;
+    Attenuation attenuation;
+    vec3 position;
+};
+
+in vec3 fsNormal;
+in vec3 fsViewNormal;
+in vec2 fsTexCoord;
+in vec3 fsWorldPos;
+in vec3 fsPos;
+
+out vec4 pixelColor;
+
+//lights
+uniform vec3 ambiantLight;
+uniform PointLight pointLights[MAX_POINTS_LIGHT];
+
+uniform sampler2D tex;
+uniform vec3 camPos;
+//material properties
+uniform vec3 specColor;
+uniform float specIntensity;
+uniform float hardness;
+
+uniform SunLight sun;
+
+vec4 desaturate(vec4 color, float amount)
+{
+
+    if(amount <= 0 || (color.x == color.y && color.x == color.z && color.y == color.z))
+    {
+        return color;
+    }
+    if(amount > 1)
+    {
+    amount = 1;
+    }
+
+    float maxVal = max(color.x,max(color.y,color.z));
+        
+    float deltaR = maxVal-color.x;
+    float deltaG = maxVal-color.y;
+    float deltaB = maxVal-color.z;
+
+    float r,g,b;
+    
+    r = color.x+(deltaR*amount);
+    g = color.y+(deltaG*amount);
+    b = color.z+(deltaB*amount);
+
+    return vec4(r,g,b,color.w);
+}
+
+
+float map(float value, float inMin, float inMax, float outMin, float outMax)
+{
+  return (((value-inMin)/inMax)*outMax)+outMin;
+}
+
+vec4 computeLight(BaseLight light, vec3 rayDirection, vec3 normal)
+{
+    float diffuseFactor = dot(normal,-rayDirection);
+    vec4 outputLight = vec4(0.,0.,0.,1.);    
+    vec4 specular = vec4(0.,0.,0.,1.);
+    float specFac = 0;
+    float correctedSpecFac = 0;
+
+    if(diffuseFactor > 0)
+    {
+        outputLight = vec4(light.color,1.) * light.intensity * diffuseFactor;
+
+        vec3 forward = vec3(0.,0.,1.);
+        specFac = dot(-forward,fsViewNormal);
+        specFac = pow(specFac,hardness);
+
+        if(specFac > 0)
+        {
+        //float error
+            correctedSpecFac = specFac;
+            specular = vec4(specColor,1.) * specIntensity * light.intensity * correctedSpecFac * diffuseFactor;
+        }
+    }
+    
+    return outputLight+specular;
+}
+
+vec4 computeSunLight(SunLight light, vec3 normal)
+{
+    return computeLight(light.base, light.direction, normal);
+}
+
+vec4 computePointLight(PointLight light, vec3 normal)
+{
+    vec3 lightDirection = fsPos - light.position;
+    float dist = length(lightDirection);
+    lightDirection = normalize(lightDirection);
+
+    vec4 color = computeLight(light.base,lightDirection,normal);
+
+    float attenuation = light.attenuation.constant +
+                        light.attenuation.linear * dist +
+                        light.attenuation.exponent * dist * dist +
+                        0.0001;
+                        //make sure we don't divide by zero
+
+    return color/attenuation;
+}
+
+void main()
+{
+    vec4 totalLight = vec4(ambiantLight,1.);
+    float fresnel = clamp(map(dot(normalize(camPos), fsNormal),0.,1.,1,-2),0.,1.);
+    vec4 backColor = vec4(1.,1.,1.,1.);
+    vec4 texel = texture(tex,fsTexCoord);
+    vec4 diffuse = mix(texel,backColor,fresnel);
+    //diffuse = texel;
+
+    //totalLight+= computeSunLight(sun,fsNormal);
+
+    for(int i = 0; i < MAX_POINTS_LIGHT; i++)
+    {
+        totalLight+=computePointLight(pointLights[i],fsNormal);
+    }
+    //totalLight+=computePointLight(pointLights[0],fsNormal);
+
+    pixelColor = desaturate(diffuse,length(totalLight/10.)) * totalLight;
+
+}

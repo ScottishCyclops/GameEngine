@@ -78,3 +78,9 @@ Texture::~Texture()
 {
     destroy();
 }
+
+
+void Texture::unBind()
+{
+    glBindTexture(GL_TEXTURE_2D,0);
+}

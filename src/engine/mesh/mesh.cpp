@@ -82,28 +82,30 @@ Mesh::~Mesh()
 
 //Object
 
-Object::Object(uint meshId, uint shaderId, uint texId, uint index, Mesh *mesh, Shader* shader, Texture* texture, Transform* transform)
+Object::Object(uint meshId, uint shaderId, uint matId, uint index, Mesh* mesh, Shader* shader, Material* material, Transform* transform)
 {
     m_meshId = meshId;
     m_shaderId = shaderId;
-    m_texId = texId;
+    m_matId = matId;
     m_index = index;
 
     m_mesh = mesh;
     m_shader = shader;
-    m_texture = texture;
+    m_mat = material;
     m_transform = transform;
 }
 
-void Object::draw(Camera* camera, glm::vec3* lightDir)
+void Object::draw(Camera* camera, SunLight* light)
 {
+    Texture::unBind();
+
     m_shader->use();
-    m_shader->update(m_transform,camera,lightDir);
+    m_shader->update(m_transform,camera,light,m_mat);
 
     //if we have specified a texture
-    if(m_texture != NULL)
+    if(m_mat->getDiffuse() != NULL)
     {
-        m_texture->use();
+        m_mat->getDiffuse()->use();
     }
 
     glBindVertexArray(*m_mesh->getVao());

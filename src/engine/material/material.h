@@ -16,45 +16,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef GAME_H
-#define GAME_H
+#ifndef MATERIAL_H
+#define MATERIAL_H
 
 #include "libs.h"
+#include "engine/material/texture.h"
 
-#include "engine/utils/input.h"
-#include "engine/camera.h"
-#include "engine/display.h"
-#include "engine/scene.h"
-#include "engine/light/light.h"
 
-class Game
+class Material
 {
 private:
-    Shader* m_shader;
-    Texture* m_tex;
-    SDL_Event m_e;
-    Mouse* m_mouse;
-    Keyboard* m_kb;
-    Camera* m_camera;
-    Scene* m_scene;
-    SunLight* m_light;
-
-    float m_i;
-    float m_speed;
-    float m_camSensitivity;
-    float* m_timeDelta;
-    bool m_isMouseLocked;
-
+    Texture* m_diffuse;
+    float m_diffuseIntensity;
+    glm::vec3 m_specular;
+    float m_specularIntensity;
+    float m_hardness;
 public:
-    Display* display;
-    bool isRunning;
+    Material(Texture* diffuse, float specularIntensity);
+    Material(Texture* diffuse, float diffuseIntensity, glm::vec3 specular, float specularIntensity, float hardness);
 
-    Game(Display *display);
-    void initScene(float* timeDelta);
-    void update();
-    void mouseLook();
-    void render();
-    void quit();
+    Texture* getDiffuse(){return m_diffuse;}
+    float getDiffuseIntensity(){return m_diffuseIntensity;}
+    glm::vec3* getSpecular(){return &m_specular;}
+    float getSpecularIntensity(){return m_specularIntensity;}
+    float getHardness(){return m_hardness;}
+
+    void destroy();
+    ~Material();
 };
 
-#endif // GAME_H
+#endif // MATERIAL_H

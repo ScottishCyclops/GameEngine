@@ -22,11 +22,9 @@
 #include "libs.h"
 #include "engine/mesh/mesh.h"
 #include "engine/mesh/meshloader.h"
-#include "engine/texture/texture.h"
-
-const string meshFolder = resFolder+"/meshes/";
-const string textureFolder = resFolder+"/textures/";
-const string shaderFolder = resFolder+"/shaders/";
+#include "engine/shader/shader.h"
+#include "engine/material/material.h"
+#include "engine/material/texture.h"
 
 enum Meshes
 {
@@ -35,6 +33,8 @@ enum Meshes
     PISTOL_M,
     ANO_M,
     GROUND_M,
+    SPHERE_M,
+    GUN_M,
 
     NUM_MESHES
 };
@@ -42,37 +42,30 @@ enum Meshes
 enum Shaders
 {
     BASIC_S,
+    ADVANCED_S,
 
     NUM_SHADERS
 };
 
-enum Textures
+enum Materials
 {
-    PISTOL_T,
-    RUSSIAN_T,
-    ANO_T,
-    SIMPLE_T,
+    PISTOL_ML,
+    RUSSIAN_ML,
+    ANO_ML,
+    SIMPLE_ML,
+    GUN_ML,
 
-    NUM_TEXTURES
+    NUM_MATERIALS
 };
 
 struct MeshInfo
 {
     uint id;
     string fileName;
-    uint defaultTex;
+    uint defaultMat;
     uint defaultShader;
     uint usage;
     Mesh* mesh;
-};
-
-//can't have more than 32 textures !
-struct TexInfo
-{
-    uint id;
-    string fileName;
-    uint usage;
-    Texture* texture;
 };
 
 struct ShaderInfo
@@ -84,19 +77,30 @@ struct ShaderInfo
 };
 
 
+//can't have more than 32 textures !
+struct MaterialInfo
+{
+    uint id;
+    string fileName;
+    uint usage;
+    Material* material;
+};
+
 class Scene
 {
 private:
     vector<MeshInfo> m_meshes;
-    vector<TexInfo> m_textures;
+    vector<MaterialInfo> m_materials;
     vector<ShaderInfo> m_shaders;
     vector<Object*> m_objects;
+    vector<PointLight*> m_pointLights;
+
 
     void loadMesh(uint id);
     void unloadMesh(uint id);
 
-    void loadTex(uint id);
-    void unloadTex(uint id);
+    void loadMaterial(uint id);
+    void unloadMaterial(uint id);
 
     void loadShader(uint id);
     void unloadShader(uint id);
@@ -106,9 +110,9 @@ public:
     void updateMeshCache();
 
     uint addObject(uint mesh);
-    uint addObject(uint mesh, int texture);
-    uint addObject(uint mesh, int shader, int texture);
-    uint addObject(uint mesh, int shader, int texture, Transform* transform);
+    uint addObject(uint mesh, int material);
+    uint addObject(uint mesh, int shader, int material);
+    uint addObject(uint mesh, int shader, int material, Transform* transform);
     void removeObject(uint id);
     vector<Object*>* getObjects(){return &m_objects;}
     Object* getObject(uint id){return m_objects[id];}

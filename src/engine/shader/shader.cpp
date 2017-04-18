@@ -45,20 +45,39 @@ Shader::Shader(const string &shaderName)
     glValidateProgram(m_glProgram);
     checkShaderError(m_glProgram,GL_VALIDATE_STATUS,true, "Program validation failure");
 
-    //transform is the name used in GLSL. This gets us the location of that variable so
-    //we can use it from the CPU
     m_uniforms[PROJECTION_U] = glGetUniformLocation(m_glProgram,"projection");
     m_uniforms[VIEW_U] = glGetUniformLocation(m_glProgram,"view");
     m_uniforms[MODEL_U] = glGetUniformLocation(m_glProgram,"model");
-    m_uniforms[LIGHT_DIR_U] = glGetUniformLocation(m_glProgram,"lightDir");
+
+    m_uniforms[AMBIANT_LIGHT_U] = glGetUniformLocation(m_glProgram,"ambiantLight");
+
+    m_uniforms[CAM_POS_U] = glGetUniformLocation(m_glProgram,"camPos");
+    m_uniforms[SPEC_COLOR_U] = glGetUniformLocation(m_glProgram,"specColor");
+    m_uniforms[SPEC_INTENSITY_U] = glGetUniformLocation(m_glProgram,"specIntensity");
+    m_uniforms[SPEC_HARDNESS_U] = glGetUniformLocation(m_glProgram,"hardness");
+
+    m_uniforms[SUN_LIGHT_COLOR_U] = glGetUniformLocation(m_glProgram,"sun.base.color");
+    m_uniforms[SUN_LIGHT_INTENSITY_U] = glGetUniformLocation(m_glProgram,"sun.base.intensity");
+    m_uniforms[SUN_LIGHT_DIRECTION_U] = glGetUniformLocation(m_glProgram,"sun.direction");
+
+    for(uint i = 0; i < MAX_POINTS_LIGHT; i++)
+    {
+        m_uniforms[POINT_LIGHT_0_COLOR_U+(i*POINT_LIGHT_COMPONANTS)] =
+                glGetUniformLocation(m_glProgram, ("pointLights["+to_string(i)+"].base.color").c_str());
+        m_uniforms[POINT_LIGHT_0_INTENSITY_U+(i*POINT_LIGHT_COMPONANTS)] =
+                glGetUniformLocation(m_glProgram, ("pointLights["+to_string(i)+"].base.intensity").c_str());
+        m_uniforms[POINT_LIGHT_0_CONSTANT_U+(i*POINT_LIGHT_COMPONANTS)] =
+                glGetUniformLocation(m_glProgram, ("pointLights["+to_string(i)+"].attenuation.constant").c_str());
+        m_uniforms[POINT_LIGHT_0_LINEAR_U+(i*POINT_LIGHT_COMPONANTS)] =
+                glGetUniformLocation(m_glProgram, ("pointLights["+to_string(i)+"].attenuation.linear").c_str());
+        m_uniforms[POINT_LIGHT_0_EXPONENT_U+(i*POINT_LIGHT_COMPONANTS)] =
+                glGetUniformLocation(m_glProgram, ("pointLights["+to_string(i)+"].attenuation.exponent").c_str());
+        m_uniforms[POINT_LIGHT_0_POSITION_U+(i*POINT_LIGHT_COMPONANTS)] =
+                glGetUniformLocation(m_glProgram, ("pointLights["+to_string(i)+"].position").c_str());
+    }
 }
 
-void Shader::use()
-{
-    glUseProgram(m_glProgram);
-}
-
-void Shader::update(Transform *transform, Camera* camera, glm::vec3* lightDir)
+void Shader::update(Transform *transform, Camera* camera, SunLight* light, Material* mat)
 {
     //model view projection, inversed for calculation !
 
@@ -71,7 +90,32 @@ void Shader::update(Transform *transform, Camera* camera, glm::vec3* lightDir)
     glUniformMatrix4fv(m_uniforms[VIEW_U],1,GL_FALSE,&view[0][0]);
     glUniformMatrix4fv(m_uniforms[MODEL_U],1,GL_FALSE,&model[0][0]);
 
-    glUniform3fv(m_uniforms[LIGHT_DIR_U],1,(float*)lightDir);
+    glUniform3fv(m_uniforms[AMBIANT_LIGHT_U],1,(float*)m_ambiantLight);
+
+    glUniform3fv(m_uniforms[CAM_POS_U],1,(float*)camera->getPos());
+    glUniform3fv(m_uniforms[SPEC_COLOR_U],1,(float*)mat->getSpecular());
+    glUniform1f(m_uniforms[SPEC_INTENSITY_U],mat->getSpecularIntensity());
+    glUniform1f(m_uniforms[SPEC_HARDNESS_U],mat->getHardness());
+
+    glUniform3fv(m_uniforms[SUN_LIGHT_COLOR_U],1,(float*)&light->base.color);
+    glUniform1f(m_uniforms[SUN_LIGHT_INTENSITY_U],light->base.intensity);
+    glUniform3fv(m_uniforms[SUN_LIGHT_DIRECTION_U],1,(float*)&light->direction);
+
+    for(uint i = 0; i < MAX_POINTS_LIGHT; i++)
+    {
+        glUniform3fv(m_uniforms[POINT_LIGHT_0_COLOR_U+(i*POINT_LIGHT_COMPONANTS)],1,(float*)&m_pointLights[i]->base.color);
+        glUniform1f(m_uniforms[POINT_LIGHT_0_INTENSITY_U+(i*POINT_LIGHT_COMPONANTS)],m_pointLights[i]->base.intensity);
+        glUniform1f(m_uniforms[POINT_LIGHT_0_CONSTANT_U+(i*POINT_LIGHT_COMPONANTS)], m_pointLights[i]->attenuation.constant);
+        glUniform1f(m_uniforms[POINT_LIGHT_0_LINEAR_U+(i*POINT_LIGHT_COMPONANTS)],   m_pointLights[i]->attenuation.linear);
+        glUniform1f(m_uniforms[POINT_LIGHT_0_EXPONENT_U+(i*POINT_LIGHT_COMPONANTS)], m_pointLights[i]->attenuation.exponent);
+        glUniform3fv(m_uniforms[POINT_LIGHT_0_POSITION_U+(i*POINT_LIGHT_COMPONANTS)],1,(float*)&m_pointLights[i]->position);
+    }
+
+}
+
+void Shader::use()
+{
+    glUseProgram(m_glProgram);
 }
 
 void Shader::destroy()

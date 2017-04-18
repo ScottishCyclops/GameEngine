@@ -1,5 +1,5 @@
 /*
-    NinjaGame based on SDL2 GLEW and GL
+    Miden Engine, the real one. Built with OpenGL and SDL
     Copyright (C) 2017 Scott Winkelmann <scottlandart@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
@@ -16,34 +16,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIBS_H
-#define LIBS_H
+#version 330
 
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec2 texCoord;
 
-// namespace
-using namespace std;
+out vec3 fsNormal;
+out vec3 fsViewNormal;
+out vec2 fsTexCoord;
+out vec3 fsWorldPos;
+out vec3 fsPos;
 
-// grahics libraries
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <SDL2/SDL.h>
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
 
-//gl math
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/quaternion.hpp>
+void main()
+{
+    mat4 mvp = projection * view * model;
 
-// utilities
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <vector>
-#include <algorithm>
-#include <array>
+    fsPos = vec3(model * vec4(position,1.0)).xyz;
+    fsNormal = normalize((model * vec4(normal,0.)).xyz);
+    fsViewNormal = normalize((mvp * vec4(normal,0.)).xyz);
+    fsTexCoord = vec2(texCoord.x,1-texCoord.y);
+    fsWorldPos = (projection * model * vec4(position,1.)).xyz;
 
-const string resFolder = "../resources";
-const string meshFolder = resFolder+"/meshes/";
-const string textureFolder = resFolder+"/textures/";
-const string shaderFolder = resFolder+"/shaders/";
+    gl_Position = mvp * vec4(position,1.);
+}
 
-#endif // LIBS_H

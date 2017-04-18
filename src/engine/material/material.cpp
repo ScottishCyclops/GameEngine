@@ -1,5 +1,5 @@
 /*
-    NinjaGame based on SDL2 GLEW and GL
+    Miden Engine, the real one. Built with OpenGL and SDL
     Copyright (C) 2017 Scott Winkelmann <scottlandart@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
@@ -16,34 +16,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIBS_H
-#define LIBS_H
+#include "material.h"
 
 
-// namespace
-using namespace std;
+Material::Material(Texture *diffuse, float specularIntensity)
+{
+    m_diffuse = diffuse;
+    m_diffuseIntensity = 1.f;
+    m_specular = glm::vec3(1.f,1.f,1.f);
+    m_specularIntensity = specularIntensity;
+    m_hardness = 20.f;
+}
 
-// grahics libraries
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <SDL2/SDL.h>
+Material::Material(Texture *diffuse, float diffuseIntensity, glm::vec3 specular, float specularIntensity, float hardness)
+{
+    m_diffuse = diffuse;
+    m_diffuseIntensity = diffuseIntensity;
+    m_specular = specular;
+    m_specularIntensity = specularIntensity;
+    m_hardness = hardness;
+}
 
-//gl math
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/quaternion.hpp>
+void Material::destroy()
+{
+    m_diffuse->destroy();
+}
 
-// utilities
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <vector>
-#include <algorithm>
-#include <array>
-
-const string resFolder = "../resources";
-const string meshFolder = resFolder+"/meshes/";
-const string textureFolder = resFolder+"/textures/";
-const string shaderFolder = resFolder+"/shaders/";
-
-#endif // LIBS_H
+Material::~Material()
+{
+    destroy();
+}

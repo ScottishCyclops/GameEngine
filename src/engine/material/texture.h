@@ -1,5 +1,5 @@
 /*
-    NinjaGame based on SDL2 GLEW and GL
+    Miden Engine, the real one. Built with OpenGL and SDL
     Copyright (C) 2017 Scott Winkelmann <scottlandart@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
@@ -16,34 +16,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIBS_H
-#define LIBS_H
+#ifndef TEXTURE_H
+#define TEXTURE_H
 
+#include "libs.h"
 
-// namespace
-using namespace std;
+class Texture
+{
+private:
+    GLuint m_glTexture;
+    string m_path;
+    uint m_id;
 
-// grahics libraries
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <SDL2/SDL.h>
+public:
+    uint width;
+    uint height;
 
-//gl math
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/quaternion.hpp>
+    Texture(const string &path, uint id);
+    void use();
+    void destroy();
+    ~Texture();
 
-// utilities
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <vector>
-#include <algorithm>
-#include <array>
+    static void unBind();
+};
 
-const string resFolder = "../resources";
-const string meshFolder = resFolder+"/meshes/";
-const string textureFolder = resFolder+"/textures/";
-const string shaderFolder = resFolder+"/shaders/";
-
-#endif // LIBS_H
+#endif // TEXTURE_H

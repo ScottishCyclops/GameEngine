@@ -1,0 +1,183 @@
+/*
+    Miden Engine, the real one. Built with OpenGL and SDL
+    Copyright (C) 2017 Scott Winkelmann <scottlandart@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#version 330
+
+in vec3 fsNormal;
+in vec2 fsTexCoord;
+
+out vec4 pixelColor;
+
+uniform vec3 ambiantLight;
+uniform sampler2D tex;
+
+struct BaseLight
+{
+    vec3 color;
+    float intensity;
+};
+
+struct DirectionnalLight
+{
+    BasLight base;
+    vec3 direction;
+};
+
+vec4 computeLight(BaseLight light, vec3 rayDirection, vec3 normal)
+{
+    float diffuseFactor = dot(-direction,normal);
+    vec4 outputColor = vec4(0.,0.,0.,0.);    
+
+    if(diffuseFactor > 0)
+    {
+        outputColor = vec4(base.color,1.) * base.intensity * diffuseFactor;
+    }
+
+    return outputColor;
+}
+
+vec4 computeDirectionalLight(DirectionnalLight light, vec3 normal)
+{
+    return computeLight(light.base, light.direction, normal);
+}
+
+/*
+vec4 lightColor = vec4(1.,1.,1.,1.);
+float ambiantLight = .1;
+vec4 backgroundColor = vec4(.1,.1,.1,1.);
+
+float map(float value, float inMin, float inMax, float outMin, float outMax)
+{
+  return (((value-inMin)/inMax)*outMax)+outMin;
+}
+*/
+void main()
+{
+
+    vec4 diffuse = texture(tex,fsTexCoord);
+    vec4 light = vec4(ambiantLight,1);
+
+    //float fresnel = clamp( map( dot(-vec3(0,0,1), fsNormal), 0.,1.,.5,-1.), 0., 1.);
+
+    pixelColor = diffuse * light;
+/*
+    * clamp(dot(-lightDir, fsNormal), ambiantLight, 1.)
+    * lightColor
+    + (mix(lightColor,backgroundColor,.8)*fresnel);
+*/
+}
+
+
+
+vec3 rgbToHsv(vec3 rgbColor)
+{
+    float h,s,v, delta;
+
+    float maxVal = max(rgbColor.x, max(rgbColor.y,rgbColor.z));
+    float minVal = min(rgbColor.x, min(rgbColor.y,rgbColor.z));
+
+    v = minVal;
+    delta = maxVal-minVal;
+
+    if(maxVal != 0.)
+    {
+        s = delta/maxVal;
+    }
+    else
+    {
+        s = 0;
+        h = -1.;
+    }
+    
+    if(rgbColor.x == maxVal)
+    {
+        h = (rgbColor.y-rgbColor.z)/delta;
+    }
+    else if(rgbColor.y == maxVal)
+    {
+        h = 2. + (rgbColor.z-rgbColor.x)/delta;
+    }
+    else
+    {
+        h = 4. + (rgbColor.x-rgbColor.y)/delta;
+    }
+
+    h*=60.;
+    if(h < 0.)
+    {
+    h+=360.;
+    }
+
+    return vec3(h,s,v);
+}
+
+vec3 hsvToRgb(vec3 hsvColor)
+{
+    float r,g,b, f,p,q,t;
+    int i;
+
+    if(hsvColor.y == 0.)
+    {
+        r = g = b = hsvColor.z;
+    }
+    else
+    {
+        hsvColor.x/=60.;
+        i = int(floor(hsvColor.x));
+        f = hsvColor.x-i;
+	    p = hsvColor.z * ( 1. - hsvColor.y );
+	    q = hsvColor.z * ( 1. - hsvColor.y * f );
+	    t = hsvColor.z * ( 1. - hsvColor.y * ( 1. - f ) );
+
+	    switch(i)
+        {
+		    case 0:
+			    r = hsvColor.z;
+			    g = t;
+			    b = p;
+			    break;
+		    case 1:
+			    r = q;
+			    g = hsvColor.z;
+			    b = p;
+			    break;
+		    case 2:
+			    r = p;
+			    g = hsvColor.z;
+			    b = t;
+			    break;
+		    case 3:
+			    r = p;
+			    g = q;
+			    b = hsvColor.z;
+			    break;
+		    case 4:
+			    r = t;
+			    g = p;
+			    b = hsvColor.z;
+			    break;
+		    case 5:
+			    r = hsvColor.z;
+			    g = p;
+			    b = q;
+			    break;
+	    }
+    }
+
+    return vec3(r,g,b);
+}

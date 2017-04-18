@@ -16,26 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#version 330
 
-#include "libs.h"
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec2 texCoord;
 
-class Texture
+out vec3 fsNormal;
+out vec3 fsViewNormal;
+out vec2 fsTexCoord;
+out vec3 fsWorldPos;
+
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+
+void main()
 {
-private:
-    GLuint m_glTexture;
-    string m_path;
-    uint m_id;
+    mat4 mvp = projection * view * model;
 
-public:
-    uint width;
-    uint height;
+    fsNormal = normalize((projection * model * vec4(normal,0.)).xyz);
+    fsViewNormal = normalize((mvp * vec4(normal,0.)).xyz);
+    fsTexCoord = vec2(texCoord.x,1-texCoord.y);
+    fsWorldPos = (projection * model * vec4(position,1.)).xyz;
 
-    Texture(const string &path, uint id);
-    void use();
-    void destroy();
-    ~Texture();
-};
+    gl_Position = mvp * vec4(position,1.);
+}
 
-#endif // TEXTURE_H

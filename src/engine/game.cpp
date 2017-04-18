@@ -25,7 +25,7 @@ Game::Game(Display* display)
     isRunning = false;
     m_kb = new Keyboard();
     m_mouse = new Mouse(display->getWidth(),display->getHeight());
-    m_camera = new Camera(glm::vec3(0,0,-4),55.f,display->getWidth(),display->getHeight(),0.01f,300);
+    m_camera = new Camera(glm::vec3(0,0,-10),55.f,display->getWidth(),display->getHeight(),0.01f,300);
     m_scene = new Scene();
 }
 
@@ -38,16 +38,19 @@ void Game::initScene(float* timeDelta)
     m_camSensitivity = .04f * (*m_timeDelta);
     m_isMouseLocked = true;
 
+    uint sphere = m_scene->addObject(SPHERE_M);
+    m_scene->getObject(sphere)->scale(1);
+    m_scene->getObject(sphere)->rotateY(0);
+
     uint pistol = m_scene->addObject(PISTOL_M);
-    m_scene->getObject(pistol)->scale(3);
-    //m_scene->getObject(pistol)->translate(0,2,0);
+    m_scene->getObject(pistol)->translate(0,0,-5);
 
-    //uint big = m_scene->addObject(BIG_M);
-    //m_scene->getObject(big)->scale(2);
-    //m_scene->getObject(big)->translate(20,0,-10);
 
-    //uint ground = m_scene->addObject(GROUND_M);
-    //m_scene->getObject(ground)->scale(2);
+
+    m_light = new SunLight;
+    m_light->base.color = glm::vec3(1.f,1.f,1.f);
+    m_light->base.intensity = 1.f;
+    m_light->direction = glm::normalize(glm::vec3(0.f,0.f,1.f));
 }
 
 
@@ -113,6 +116,23 @@ void Game::update()
         m_camera->translate(Y_AXIS,-m_speed);
     }
 
+    if(m_kb->isKeyDown(SDL_SCANCODE_F))
+    {
+        m_light->base.intensity-=m_speed;
+    }
+    if(m_kb->isKeyDown(SDL_SCANCODE_G))
+    {
+        m_light->base.intensity+=m_speed;
+    }
+    if(m_kb->isKeyDown(SDL_SCANCODE_C))
+    {
+        m_scene->getObject(0)->rotateY(-m_speed);
+    }
+    if(m_kb->isKeyDown(SDL_SCANCODE_V))
+    {
+        m_scene->getObject(0)->rotateY(m_speed);
+    }
+
 }
 
 void Game::mouseLook()
@@ -129,18 +149,12 @@ void Game::mouseLook()
 
 void Game::render()
 {
-    glm::vec3* light = new glm::vec3(.8,-.8,-.6);
-    glm::vec4 projectedLight = glm::vec4(light->x,light->y,light->z,0.f) * m_camera->getView();
-    light = new glm::vec3(projectedLight.x,projectedLight.y,projectedLight.z);
-
     m_i+=.02f;
-    //light->x = sin(m_i);
-    //light->y = cos(m_i);
 
     //m_scene->getObject(0)->rotateY(.01);
     for(uint i  = 0; i < m_scene->getObjects()->size(); i++)
     {
-        m_scene->getObject(i)->draw(m_camera,light);
+        m_scene->getObject(i)->draw(m_camera,m_light);
     }
 }
 

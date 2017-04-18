@@ -23,14 +23,18 @@
 
 #include "engine/utils/transform.h"
 #include "engine/shader/shader.h"
-#include "engine/texture/texture.h"
+#include "engine/material/texture.h"
+#include "engine/material/material.h"
+#include "engine/light/light.h"
 
+/*
 struct Vertex
 {
     glm::vec3 location;
     glm::vec3 normal;
     glm::vec2 uvs;
 };
+*/
 
 class Mesh
 {
@@ -62,16 +66,16 @@ class Object
 private:
     uint m_meshId;
     uint m_shaderId;
-    uint m_texId;
+    uint m_matId;
     uint m_index;
 
     Mesh* m_mesh;
     Shader* m_shader;
-    Texture* m_texture;
+    Material* m_mat;
     Transform* m_transform;
 public:
-    Object(uint meshId, uint shaderId, uint texId, uint index, Mesh* mesh, Shader* shader, Texture* texture, Transform* transform);
-    void draw(Camera *camera, glm::vec3 *lightDir);
+    Object(uint meshId, uint shaderId, uint matId, uint index, Mesh* mesh, Shader* shader, Material* material, Transform* transform);
+    void draw(Camera *camera, SunLight* light);
     Transform* getTransform(){return m_transform;}
 
     void translate(float x, float y, float z);
@@ -88,7 +92,7 @@ public:
     glm::vec3* getScale(){return &m_transform->scale;}
     uint getMeshId(){return m_meshId;}
     uint getShaderId(){return m_shaderId;}
-    uint getTexId(){return m_texId;}
+    uint getMatId(){return m_matId;}
     uint getIndex(){return m_index;}
 
     void setLoc(glm::vec3 loc){m_transform->loc = loc;}
