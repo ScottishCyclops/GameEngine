@@ -1,3 +1,10 @@
+Yet another old version of my work in progress engine.
+
+I keep it for reference, might disapear soon.
+
+Original README :
+
+
 # Miden Engine
 
 Game Engine built with SDL and OpenGL.
